@@ -1,0 +1,20 @@
+// root
+export const SET_USER = 'SET_USER';
+export const CLEAR_USER = 'CLEAR_USER';
+export const TOGGLE_SNACKBAR = 'TOGGLE_SNACKBAR';
+export const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';
+export const SET_BREADCRUMBS = 'SET_BREADCRUMBS';
+export const START_LOADING = 'START_LOADING';
+export const END_LOADING = 'END_LOADING';
+
+// product
+export const SET_GOODS_CATEGORY = 'SET_GOODS_CATEGORY';
+export const SET_GOODS_UNIT = 'SET_GOODS_UNIT';
+export const SET_GOODS_LIST = 'SET_GOODS_LIST';
+
+// SETTING
+export const SET_SETTING_BANNER = 'SET_SETTING_BANNER';
+export const SET_SETTING_NOTICE = 'SET_SETTING_NOTICE';
+
+// user
+export const SET_CUSTOMER_LIST = 'SET_CUSTOMER_LIST';

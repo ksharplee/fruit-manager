@@ -39,6 +39,7 @@
                 <v-btn
                   icon
                   class="mx-1"
+                  :disabled="item.dStatus === '4'"
                   :to="{name: 'GoodsEdit', params: {id: item.id}}"
                   v-on="on"
                 >

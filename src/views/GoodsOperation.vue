@@ -26,7 +26,7 @@
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    v-model="cateName"
+                    v-model="product.categoryName"
                     :rules="cateRules"
                     :loading="loadingCate"
                     :disabled="loadingCate"
@@ -34,11 +34,9 @@
                     dense
                     readonly
                     outlined
-                    clearable
                     required
                     append-icon="mdi-menu-down"
                     v-on="on"
-                    @click:clear="cateName = '';product.categoryId = ''"
                   />
                 </template>
                 <v-card>
@@ -57,7 +55,6 @@
                       open-on-click
                       rounded
                       activatable
-                      return-object
                       @update:active="getActiveCategory"
                     >
                       <template v-slot:prepend="{ item,leaf, open }">
@@ -364,7 +361,11 @@
         <v-card-title class="pa-3 grey lighten-3 title">
           商品描述
         </v-card-title>
-        <wang-editor @update:html="$set(product, 'detailDesc', $event)" />
+        <component
+          :is="component"
+          :content="product.detailDesc"
+          @update:html="$set(product, 'detailDesc', $event)"
+        />
       </v-card>
       <v-btn
         :loading="submitting"
@@ -402,10 +403,10 @@ export default {
   data() {
     return {
       valid: true,
+      component: null,
       submitting: false,
       dialogCategory: false,
       categorySelected: [],
-      cateName: '',
       containSpecOptions: [
         {
           value: '1',
@@ -420,6 +421,7 @@ export default {
       product: {
         dnames: '',
         categoryId: '',
+        categoryName: '',
         containSpec: '0',
         dno: '',
         price: '',
@@ -431,13 +433,6 @@ export default {
           price: '',
           weight: '',
           dnames: '',
-          // TODO: 组params时需带上下方字段
-          // specItems: [
-          //   {
-          //     specName: '',
-          //     specItemName: '',
-          //   },
-          // ],
         },
       ],
       nameRules: [(v) => !!v || '请填写商品名称'],
@@ -458,6 +453,12 @@ export default {
         BaseGoodSpecItem: this.$store.$R.map(this.$store.$R.prop('dnames'), this.BaseGoodDetail),
       }];
     },
+    categorySon() {
+      return this.$store.$R.filter((item) => !!item, this.$store.$R.flatten(this.$store.$R.map(this.$store.$R.prop('son'), this.category.data)));
+    },
+    categoryFlatten() {
+      return this.$store.$R.concat(this.category.data, this.categorySon);
+    },
   },
   created() {
     if (!this.category.status) {
@@ -468,6 +469,8 @@ export default {
     }
     if (this.id) {
       this.getGoodsDetail();
+    } else {
+      this.component = WangEditor;
     }
   },
   methods: {
@@ -475,7 +478,13 @@ export default {
     getGoodsDetail() {
       this.loading = true;
       this.getGoodsDetailAsync({ id: this.id }).then((res) => {
-        console.log('函数: getGoodsDetail -> res', res);
+        if (res.containSpec === '1') {
+          this.BaseGoodDetail = res.BaseGoodDetail;
+          this.specName = res.BaseGoodSpec[0].specName;
+        }
+        this.categorySelected = [res.categoryId];
+        this.product = this.$store.$R.dissoc('BaseGoodDetail', res);
+        this.component = WangEditor;
       }).finally(() => {
         this.loading = false;
       });
@@ -497,8 +506,10 @@ export default {
       this.categorySelected = arr;
     },
     setProductCategory() {
-      this.$set(this.product, 'categoryId', this.$store.$R.prop('id', this.$store.$R.head(this.categorySelected)));
-      this.cateName = this.$store.$R.prop('dnames', this.$store.$R.head(this.categorySelected));
+      const R = this.$store.$R;
+      const id = this.categorySelected[0];
+      this.$set(this.product, 'categoryId', id);
+      this.$set(this.product, 'categoryName', R.prop('dnames', R.find(R.propEq('id', id), this.categoryFlatten)));
       this.dialogCategory = false;
     },
     getPicPath(v, i) {

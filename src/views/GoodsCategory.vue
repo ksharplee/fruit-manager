@@ -13,12 +13,12 @@
       </v-btn>
     </div>
     <v-skeleton-loader
-      :loading="loading"
+      :loading="loadingData"
       height="500"
       transition="fade"
       type="table"
     >
-      <v-card>
+      <v-card :loading="loading">
         <div class="d-flex grey lighten-4 py-4 text-center px-2 font-weight-bold">
           <div class="flex-grow-1">
             分类名称
@@ -299,6 +299,7 @@ export default {
   data() {
     return {
       loading: false,
+      loadingData: false,
       dialogAdd: false,
       dialogEdit: false,
       dialogDelete: false,
@@ -329,6 +330,7 @@ export default {
   },
   created() {
     if (!this.category.status) {
+      this.loadingData = true;
       this.getCategory();
     }
   },
@@ -338,6 +340,7 @@ export default {
       this.loading = true;
       this.getCategoryAsync().finally(() => {
         this.loading = false;
+        this.loadingData = false;
       });
     },
     openDialogAdd(params) {
@@ -360,26 +363,32 @@ export default {
     },
     addCateConfirm() {
       this.addingCate = true;
+      this.loading = true;
       this.addCategoryAsync(this.cateToAdd)
         .finally(() => {
           this.addingCate = false;
+          this.loading = false;
           this.dialogAdd = false;
         });
     },
     editCateConfirm() {
       this.editingCate = true;
+      this.loading = true;
       this.editCategoryAsync(this.cateToEdit)
         .finally(() => {
           this.editingCate = false;
           this.dialogEdit = false;
+          this.loading = false;
         });
     },
     deleteCateConfirm() {
       this.deletingCate = true;
+      this.loading = true;
       this.deleteCategoryAsync({ id: this.cateToDelete })
         .finally(() => {
           this.deletingCate = false;
           this.dialogDelete = false;
+          this.loading = false;
         });
     },
   },

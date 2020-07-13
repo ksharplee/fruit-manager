@@ -4,18 +4,22 @@ import {
   CLEAR_USER,
   TOGGLE_SNACKBAR,
   SET_BREADCRUMBS,
-  START_LOADING,
-  END_LOADING,
+  // START_LOADING,
+  // END_LOADING,
   CLOSE_SNACKBAR,
 } from '../mutation-types';
 
 export default {
-  [START_LOADING](state) {
-    state.loading = true;
-  },
-  [END_LOADING](state) {
-    state.loading = false;
-  },
+  // [START_LOADING](state, payload) {
+  //   if (payload) {
+  //     state.loading = true;
+  //   }
+  // },
+  // [END_LOADING](state, payload) {
+  //   if (payload) {
+  //     state.loading = false;
+  //   }
+  // },
   [SET_BREADCRUMBS](state, payload) {
     state.breadCrumbs = payload;
   },

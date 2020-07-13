@@ -142,6 +142,7 @@ export default {
     ...mapActions('product', ['addUnitAsync', 'editUnitAsync']),
     addOrEditUnit() {
       this.submitting = true;
+      this.$emit('loading', true);
       if (this.edit) {
         this.editUnitAsync({ ...this.unit })
           .finally(() => {
@@ -153,6 +154,7 @@ export default {
           .finally(() => {
             this.submitting = false;
             this.$emit('close-dialog');
+            this.$emit('loading', false);
           });
       }
     },

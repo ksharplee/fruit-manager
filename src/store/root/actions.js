@@ -19,9 +19,7 @@ export default {
   // 验证码
   async getVerifyCodeAsync(context, payload) {
     try {
-      context.commit('START_LOADING');
       const res = await this.$http.post('/in/verify_code.html', payload);
-      context.commit('END_LOADING');
       if (res.data.status === 1) {
         return Promise.resolve(res.data.verify_code);
       }
@@ -46,7 +44,6 @@ export default {
         data: payload,
       });
       if (res.data.status === 1) {
-        context.commit('END_LOADING');
         return Promise.resolve(res.data.filePath);
       }
       throw new Error(res.data.info);

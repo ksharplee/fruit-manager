@@ -1,6 +1,6 @@
 export default {
   user: null,
-  loading: false,
+  // loading: false,
   snackbarColor: 'success',
   snackbarShow: false,
   snackbarText: '',

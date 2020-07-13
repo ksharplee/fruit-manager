@@ -13,117 +13,81 @@
       </v-btn>
     </div>
     <v-skeleton-loader
-      :loading="loading"
+      :loading="loadingData"
       height="500"
       transition="fade"
       type="table"
     >
-      <v-simple-table class="text-center">
-        <template v-slot:default>
-          <thead>
-            <tr class="grey lighten-3">
-              <th
-                class="text-center"
-                width="100"
+      <v-data-table
+        :headers="headers"
+        :items="banner.data"
+        :loading="loading"
+        loading-text="加载中..."
+        hide-default-footer
+        no-data-text="暂无数据"
+        fixed-header
+        :items-per-page="10"
+      >
+        <template v-slot:item.images="{item}">
+          <v-img
+            :src="item.images"
+            aspect-ratio="2"
+            class="grey lighten-4 ma-2"
+          >
+            <template v-slot:placeholder>
+              <v-row
+                class="fill-height ma-0"
+                align="center"
+                justify="center"
               >
-                序号
-              </th>
-              <th
-                class="text-center"
-              >
-                标题
-              </th>
-              <th
-                class="text-center"
-              >
-                链接
-              </th>
-              <th
-                class="text-center"
-                width="150"
-              >
-                图片
-              </th>
-              <th class="pr-10 text-right">
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item in banner.data"
-              :key="item.id"
-            >
-              <td>{{ item.sort }}</td>
-              <td class="text-left">
-                {{ item.dnames }}
-              </td>
-              <td class="text-left">
-                {{ item.links }}
-              </td>
-              <td>
-                <v-img
-                  :src="item.images"
-                  aspect-ratio="2"
-                  class="grey lighten-4 ma-2"
-                >
-                  <template v-slot:placeholder>
-                    <v-row
-                      class="fill-height ma-0"
-                      align="center"
-                      justify="center"
-                    >
-                      <v-icon v-if="!item.images">
-                        mdi-alert-octagon-outline
-                      </v-icon>
-                      <v-progress-circular
-                        v-else
-                        indeterminate
-                        color="grey lighten-2"
-                      />
-                    </v-row>
-                  </template>
-                </v-img>
-              </td>
-              <td class="text-right">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      icon
-                      class="mx-1"
-                      v-on="on"
-                      @click="openDialog({
-                        target: item,
-                        edit: true,
-                      })"
-                    >
-                      <v-icon color="teal">
-                        mdi-pencil-circle
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>编辑</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      icon
-                      class="mx-1"
-                      v-on="on"
-                      @click="dialogDelete = true;toDeleteId = item.id"
-                    >
-                      <v-icon color="secondary">
-                        mdi-delete-forever
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>删除</span>
-                </v-tooltip>
-              </td>
-            </tr>
-          </tbody>
+                <v-icon v-if="!item.images">
+                  mdi-alert-octagon-outline
+                </v-icon>
+                <v-progress-circular
+                  v-else
+                  indeterminate
+                  color="grey lighten-2"
+                />
+              </v-row>
+            </template>
+          </v-img>
         </template>
-      </v-simple-table>
+        <template v-slot:item.action="{item}">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                icon
+                class="mx-1"
+                v-on="on"
+                @click="openDialog({
+                  target: item,
+                  edit: true,
+                })"
+              >
+                <v-icon color="teal">
+                  mdi-pencil-circle
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>编辑</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                icon
+                class="mx-1"
+                v-on="on"
+                @click="dialogDelete = true;toDeleteId = item.id"
+              >
+                <v-icon color="secondary">
+                  mdi-delete-forever
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>删除</span>
+          </v-tooltip>
+        </template>
+      </v-data-table>
     </v-skeleton-loader>
     <banner-operation
       :target="target"
@@ -175,6 +139,7 @@ export default {
   data() {
     return {
       loading: false,
+      loadingData: false,
       dialog: false,
       edit: false,
       editing: false,
@@ -183,6 +148,37 @@ export default {
       deleting: false,
       target: {},
       toDeleteId: '',
+      headers: [
+        {
+          text: '序号',
+          value: 'sort',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
+          text: '标题',
+          value: 'dnames',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
+          text: '图片',
+          value: 'images',
+          align: 'center',
+          width: '150',
+          class: 'pr-10 grey lighten-4',
+          sortable: false,
+        },
+        {
+          text: '操作',
+          value: 'action',
+          align: 'right',
+          class: 'pr-10 grey lighten-4',
+          sortable: false,
+        },
+      ],
     };
   },
   computed: {
@@ -190,6 +186,7 @@ export default {
   },
   created() {
     if (!this.banner.status) {
+      this.loadingData = true;
       this.getBanner();
     }
   },
@@ -208,26 +205,32 @@ export default {
       this.loading = true;
       this.getBannerAsync().finally(() => {
         this.loading = false;
+        this.loadingData = false;
       });
     },
     editBanner(v) {
       this.editing = true;
+      this.loading = true;
       if (this.edit) {
         this.editBannerAsync(v).finally(() => {
           this.editing = false;
           this.dialog = false;
+          this.loading = false;
         });
       } else {
         this.addBannerAsync(v).finally(() => {
           this.editing = false;
           this.dialog = false;
+          this.loading = false;
         });
       }
     },
     deleteBanner() {
       this.deleting = true;
+      this.loading = true;
       this.deleteBannerAsync({ id: this.toDeleteId }).finally(() => {
         this.deleting = false;
+        this.loading = false;
         this.dialogDelete = false;
       });
     },

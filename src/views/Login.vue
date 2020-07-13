@@ -174,7 +174,7 @@ export default {
           this.verifyCode = res;
         })
         .finally(() => {
-          this.$store.commit('END_LOADING');
+          this.loading = false;
         });
     },
   },

@@ -14,15 +14,162 @@
       </v-btn>
     </div>
     <v-skeleton-loader
-      :loading="loading"
+      :loading="loadingData"
       height="500"
       transition="fade"
       type="table"
     >
       <v-card>
+        <v-container
+          fluid
+          class="py-0"
+        >
+          <v-row align="center">
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              xl="2"
+            >
+              <v-dialog
+                ref="dialog"
+                v-model="dialogCategory"
+                width="600px"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-text-field
+                    v-model="categoryName"
+                    :loading="loadingCate"
+                    :disabled="loadingCate"
+                    label="商品分类"
+                    dense
+                    readonly
+                    outlined
+                    required
+                    hide-details
+                    append-icon="mdi-menu-down"
+                    v-on="on"
+                  />
+                </template>
+                <v-card>
+                  <v-card-title class="title grey lighten-3 pa-4">
+                    选择商品分类
+                  </v-card-title>
+                  <v-card-text class="pt-4">
+                    <v-treeview
+                      :items="category.data"
+                      :active="categorySelected"
+                      dense
+                      open-all
+                      item-text="dnames"
+                      item-key="id"
+                      item-children="son"
+                      open-on-click
+                      rounded
+                      activatable
+                      @update:active="getActiveCategory"
+                    >
+                      <template v-slot:prepend="{ item,leaf, open }">
+                        <v-icon>
+                          {{ leaf ? 'mdi-bookmark-outline' : open ? 'mdi-bookmark-outline' : 'mdi-bookmark' }}
+                        </v-icon>
+                      </template>
+                    </v-treeview>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn
+                      color="primary"
+                      @click="setProductCategory"
+                    >
+                      确定
+                    </v-btn>
+                    <v-btn
+                      color="secondary"
+                      @click="dialogCategory = false"
+                    >
+                      取消
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              xl="2"
+            >
+              <v-text-field
+                v-model="search.dnames"
+                label="商品名称"
+                dense
+                outlined
+                hide-details
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              xl="2"
+            >
+              <v-text-field
+                v-model="search.dno"
+                label="商品货号"
+                dense
+                outlined
+                hide-details
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              xl="2"
+            >
+              <v-select
+                v-model="search.dStatus"
+                :items="statusOptions"
+                label="上架状态"
+                dense
+                outlined
+                hide-details
+                no-data-text="暂无数据"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+              xl="2"
+            >
+              <v-btn
+                color="primary"
+                class="mr-2"
+                @click="searchProducts"
+              >
+                搜索
+              </v-btn>
+              <v-btn
+                color="secondary"
+                @click="resetSearch"
+              >
+                重置
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
         <v-data-table
           :headers="headers"
           :items="list.data"
+          :loading="loading"
+          loading-text="加载中..."
           hide-default-footer
           no-data-text="暂无数据"
           fixed-header
@@ -49,34 +196,6 @@
                 </v-btn>
               </template>
               <span>编辑</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  v-on="on"
-                >
-                  <v-icon color="primary">
-                    mdi-account-circle
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>详情</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  v-on="on"
-                >
-                  <v-icon color="warning">
-                    mdi-alpha-p-circle
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>积分</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -225,9 +344,38 @@ export default {
       deleting: false,
       toDeleteId: '',
       loading: false,
+      loadingData: false,
       setting: false,
       toSetIds: [],
       toOperate: '',
+      dialogCategory: false,
+      loadingCate: false,
+      categoryName: '',
+      categorySelected: [],
+      search: {
+        dnames: '',
+        dStatus: '0',
+        dno: '',
+        categoryId: '',
+      },
+      statusOptions: [
+        {
+          text: '全部',
+          value: '0',
+        },
+        {
+          text: '未上架',
+          value: '1',
+        },
+        {
+          text: '已上架',
+          value: '5',
+        },
+        {
+          text: '已下架',
+          value: '2',
+        },
+      ],
       headers: [
         {
           text: '商品货号',
@@ -276,7 +424,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('product', ['list']),
+    ...mapState('product', ['list', 'category']),
     page: {
       set(value) {
         this.list.p = value;
@@ -295,18 +443,46 @@ export default {
         +this.list.totalItem / process.env.VUE_APP_ITEMPERPAGE,
       );
     },
+    categorySon() {
+      return this.$store.$R.filter((item) => !!item, this.$store.$R.flatten(this.$store.$R.map(this.$store.$R.prop('son'), this.category.data)));
+    },
+    categoryFlatten() {
+      return this.$store.$R.concat(this.category.data, this.categorySon);
+    },
   },
   created() {
+    if (!this.category.status) {
+      this.getCategory();
+    }
     if (!this.list.status) {
+      this.loadingData = true;
       this.getGoodsList({ p: 1 });
     }
   },
   methods: {
-    ...mapActions('product', ['getGoodsListAsync', 'deleteGoodsAsync', 'setGoodsVisibilityAsync']),
+    ...mapActions('product', ['getGoodsListAsync', 'deleteGoodsAsync', 'setGoodsVisibilityAsync', 'getCategoryAsync']),
+    getCategory() {
+      this.loadingCate = true;
+      this.getCategoryAsync().finally(() => {
+        this.loadingCate = false;
+      });
+    },
+    // 获取当前产品分类
+    getActiveCategory(arr) {
+      this.categorySelected = arr;
+    },
+    setProductCategory() {
+      const R = this.$store.$R;
+      const id = this.categorySelected[0];
+      this.$set(this.search, 'categoryId', id);
+      this.categoryName = R.prop('dnames', R.find(R.propEq('id', id), this.categoryFlatten));
+      this.dialogCategory = false;
+    },
     getGoodsList(params) {
       this.loading = true;
       this.getGoodsListAsync(params).finally(() => {
         this.loading = false;
+        this.loadingData = false;
       });
     },
     changePagination() {
@@ -325,6 +501,22 @@ export default {
         this.setting = false;
         this.dialogOperate = false;
       });
+    },
+    searchProducts() {
+      this.getGoodsList({
+        ...this.search,
+        p: 1,
+      });
+    },
+    resetSearch() {
+      this.search = {
+        dStatus: '0',
+        dnames: '',
+        dno: '',
+        categoryId: '',
+      };
+      this.categoryName = '';
+      this.getGoodsList({ p: 1 });
     },
   },
 };

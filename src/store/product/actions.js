@@ -2,9 +2,7 @@ export default {
   // 分类列表
   async getCategoryAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/c/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_GOODS_CATEGORY', res.data.data ? res.data.data : []);
         return Promise.resolve(res.data.status);
@@ -112,9 +110,7 @@ export default {
   // 单位列表
   async getUnitAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/bu/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_GOODS_UNIT', res.data.data ? res.data.data : []);
         return Promise.resolve(res.data.status);
@@ -222,9 +218,7 @@ export default {
   // 商品列表
   async getGoodsListAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/g/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_GOODS_LIST', res.data);
         return Promise.resolve(res.data.status);
@@ -248,6 +242,35 @@ export default {
       const res = await this.$http.post('/g/add.html', payload);
       if (res.data.status === 1) {
         await context.dispatch('getGoodsListAsync', { p: 1 });
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '添加商品成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 商品编辑
+  async editGoodsAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/g/edit.html', payload);
+      if (res.data.status === 1) {
+        await context.dispatch('getGoodsListAsync', { p: context.state.list.p });
         context.commit(
           'TOGGLE_SNACKBAR',
           {

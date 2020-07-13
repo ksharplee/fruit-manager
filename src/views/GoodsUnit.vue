@@ -14,7 +14,7 @@
       </v-btn>
     </div>
     <v-skeleton-loader
-      :loading="loading"
+      :loading="loadingData"
       height="500"
       transition="fade"
       type="table"
@@ -82,6 +82,7 @@
       :edit="edit"
       :target="target"
       :show="dialogSingle"
+      @loading="loading = $event"
       @close-dialog="dialogSingle = false"
     />
     <v-dialog
@@ -124,6 +125,7 @@ export default {
   data() {
     return {
       loading: false,
+      loadingData: false,
       dialogSingle: false,
       dialogDelete: false,
       deleting: false,
@@ -160,6 +162,7 @@ export default {
   },
   created() {
     if (!this.unit.status) {
+      this.loadingData = true;
       this.getUnitsList();
     }
   },
@@ -171,15 +174,18 @@ export default {
       this.getUnitAsync(params)
         .finally(() => {
           this.loading = false;
+          this.loadingData = false;
         });
     },
     // 删除单位
     deleteUnits() {
       this.deleting = true;
+      this.loading = true;
       this.deleteUnitAsync({ id: this.toDeleteUnit })
         .finally(() => {
           this.deleting = false;
           this.dialogDelete = false;
+          this.loading = false;
         });
     },
   },

@@ -4,15 +4,58 @@
       客户列表
     </div>
     <v-skeleton-loader
-      :loading="loading"
+      :loading="loadingData"
       height="500"
       transition="fade"
       type="table"
     >
       <v-card>
+        <v-container
+          fluid
+          class="py-0"
+        >
+          <v-row align="center">
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+            >
+              <v-text-field
+                v-model="search"
+                label="客户姓名"
+                dense
+                outlined
+                hide-details
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+            >
+              <v-btn
+                color="primary"
+                class="mr-2"
+                @click="searchCustomer"
+              >
+                搜索
+              </v-btn>
+              <v-btn
+                color="secondary"
+                @click="resetSearch"
+              >
+                重置
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
         <v-data-table
           :headers="headers"
           :items="list.data"
+          :loading="loading"
+          loading-text="加载中..."
           hide-default-footer
           no-data-text="暂无数据"
           fixed-header
@@ -56,7 +99,7 @@
                   v-on="on"
                   @click="getCustomerPoints(item.id)"
                 >
-                  <v-icon color="secondary">
+                  <v-icon color="warning">
                     mdi-alpha-p-circle
                   </v-icon>
                 </v-btn>
@@ -121,6 +164,8 @@ export default {
   data() {
     return {
       loading: false,
+      loadingData: false,
+      search: '',
       headers: [
         {
           text: '客户头像',
@@ -183,15 +228,17 @@ export default {
   },
   created() {
     if (!this.list.status) {
-      this.loading = true;
+      this.loadingData = true;
       this.getCustomer({ p: 1 });
     }
   },
   methods: {
     ...mapActions('customer', ['getCustomerAsync', 'getCustomerDetailAsync', 'editCustomerAsync', 'getCustomerPointsAsync']),
     getCustomer(params) {
+      this.loading = true;
       this.getCustomerAsync(params).finally(() => {
         this.loading = false;
+        this.loadingData = false;
       });
     },
     changePagination() {
@@ -206,6 +253,20 @@ export default {
       this.getCustomerPointsAsync({ id }).then((res) => {
         console.log('函数: getCustomerPoints -> res', res);
       });
+    },
+    searchCustomer() {
+      if (this.search) {
+        this.getCustomer({
+          dnames: this.search,
+          p: 1,
+        });
+      }
+    },
+    resetSearch() {
+      if (this.search) {
+        this.search = '';
+        this.getCustomer({ p: 1 });
+      }
     },
   },
 };

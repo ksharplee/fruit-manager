@@ -26,7 +26,7 @@
               >
                 <template v-slot:activator="{ on }">
                   <v-text-field
-                    v-model="product.categoryName"
+                    v-model="categoryName"
                     :rules="cateRules"
                     :loading="loadingCate"
                     :disabled="loadingCate"
@@ -418,10 +418,10 @@ export default {
         },
       ],
       specName: '',
+      categoryName: '',
       product: {
         dnames: '',
         categoryId: '',
-        categoryName: '',
         containSpec: '0',
         dno: '',
         price: '',
@@ -474,13 +474,14 @@ export default {
     }
   },
   methods: {
-    ...mapActions('product', ['addGoodsAsync', 'getCategoryAsync', 'getUnitAsync', 'getGoodsDetailAsync']),
+    ...mapActions('product', ['addGoodsAsync', 'getCategoryAsync', 'getUnitAsync', 'getGoodsDetailAsync', 'editGoodsAsync']),
     getGoodsDetail() {
       this.loading = true;
       this.getGoodsDetailAsync({ id: this.id }).then((res) => {
         if (res.containSpec === '1') {
           this.BaseGoodDetail = res.BaseGoodDetail;
           this.specName = res.BaseGoodSpec[0].specName;
+          this.categoryName = res.categoryName;
         }
         this.categorySelected = [res.categoryId];
         this.product = this.$store.$R.dissoc('BaseGoodDetail', res);
@@ -509,7 +510,7 @@ export default {
       const R = this.$store.$R;
       const id = this.categorySelected[0];
       this.$set(this.product, 'categoryId', id);
-      this.$set(this.product, 'categoryName', R.prop('dnames', R.find(R.propEq('id', id), this.categoryFlatten)));
+      this.categoryName = R.prop('dnames', R.find(R.propEq('id', id), this.categoryFlatten));
       this.dialogCategory = false;
     },
     getPicPath(v, i) {
@@ -553,11 +554,19 @@ export default {
             return item;
           });
         }
-        this.addGoodsAsync(params).then(() => {
-          this.$router.replace({ name: 'GoodsList' });
-        }).finally(() => {
-          this.submitting = false;
-        });
+        if (this.id) {
+          this.editGoodsAsync(params).then(() => {
+            this.$router.replace({ name: 'GoodsList' });
+          }).finally(() => {
+            this.submitting = false;
+          });
+        } else {
+          this.addGoodsAsync(params).then(() => {
+            this.$router.replace({ name: 'GoodsList' });
+          }).finally(() => {
+            this.submitting = false;
+          });
+        }
       } else {
         this.$vuetify.goTo(this.$refs.form, { duration: 300, offset: 0, easing: 'easeInOutCubic' });
       }

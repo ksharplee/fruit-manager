@@ -2,9 +2,7 @@ export default {
   // 广告列表
   async getBannerAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/ad/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_SETTING_BANNER', res.data.data ? res.data.data : []);
         return Promise.resolve(res.data.status);
@@ -112,9 +110,7 @@ export default {
   // 公告列表
   async getNoticeAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/n/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_SETTING_NOTICE', res.data.data ? res.data.data : []);
         return Promise.resolve(res.data.status);

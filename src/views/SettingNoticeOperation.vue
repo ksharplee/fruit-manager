@@ -42,7 +42,11 @@
               <div class="text-h6 mb-3">
                 公告内容
               </div>
-              <wang-editor @update:html="notice.content = $event" />
+              <component
+                :is="component"
+                :content="notice.content"
+                @update:html="notice.content = $event"
+              />
             </v-col>
           </v-row>
         </v-form>
@@ -89,6 +93,7 @@ export default {
     return {
       valid: true,
       submitting: false,
+      component: null,
       notice: {
         title: '',
         content: '',
@@ -107,17 +112,22 @@ export default {
       }
       this.notice = JSON.parse(notice);
     }
+    this.component = WangEditor;
   },
   methods: {
     ...mapActions('setting', ['addNoticeAsync', 'editNoticeAsync']),
     submitForm() {
       this.submitting = true;
       if (this.id === 'add') {
-        this.addNoticeAsync(this.notice).finally(() => {
+        this.addNoticeAsync(this.notice).then(() => {
+          this.$router.back();
+        }).finally(() => {
           this.submitting = false;
         });
       } else {
-        this.editNoticeAsync({ id: this.id, ...this.notice }).finally(() => {
+        this.editNoticeAsync({ id: this.id, ...this.notice }).then(() => {
+          this.$router.back();
+        }).finally(() => {
           this.submitting = false;
         });
       }

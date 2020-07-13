@@ -2,9 +2,7 @@ export default {
   // 客户列表
   async getCustomerAsync(context, payload) {
     try {
-      context.commit('START_LOADING', null, { root: true });
       const res = await this.$http.post('/u/lists.html', payload);
-      context.commit('END_LOADING', null, { root: true });
       if (res.data.status === 1) {
         context.commit('SET_CUSTOMER_LIST', res.data);
         return Promise.resolve(res.data.status);

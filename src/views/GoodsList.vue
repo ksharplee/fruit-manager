@@ -24,7 +24,57 @@
           fluid
           class="py-0"
         >
-          <v-row align="center">
+          <v-row
+            v-if="selectedGoods.length"
+            align="center"
+          >
+            <v-col cols="12">
+              <v-btn
+                color="secondary"
+                icon
+                text
+                x-small
+                class="mr-3"
+                :ripple="false"
+                @click="selectedGoods = []"
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+              已选择&nbsp;<span class="primary--text">{{ selectedGoods.length }} </span>&nbsp;项
+              <v-divider
+                vertical
+                class="ml-8 mr-4"
+              />
+              <v-btn
+                text
+                class="mr-2 px-1 py-1"
+                @click="setGoodsVisibilityMultiple('4')"
+              >
+                <v-icon
+                  color="grey darken-1"
+                  class="mr-1"
+                >
+                  mdi-inbox-arrow-up mdi-18px
+                </v-icon> 上架
+              </v-btn>
+              <v-btn
+                text
+                class="mr-2 px-1 py-1"
+                @click="setGoodsVisibilityMultiple('1')"
+              >
+                <v-icon
+                  color="grey darken-1"
+                  class="mr-1"
+                >
+                  mdi-inbox-arrow-down mdi-18px
+                </v-icon> 下架
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row
+            v-else
+            align="center"
+          >
             <v-col
               cols="12"
               sm="6"
@@ -166,6 +216,7 @@
           </v-row>
         </v-container>
         <v-data-table
+          v-model="selectedGoods"
           :headers="headers"
           :items="list.data"
           :loading="loading"
@@ -173,7 +224,9 @@
           hide-default-footer
           no-data-text="暂无数据"
           fixed-header
+          show-select
           :items-per-page="10"
+          class="data-table-with-select"
         >
           <template v-slot:item.dStatus="{item}">
             <div :class="item.dStatus === '4' ? 'success--text' : 'grey--text'">
@@ -339,6 +392,7 @@ export default {
   name: 'GoodsList',
   data() {
     return {
+      selectedGoods: [],
       dialogDelete: false,
       dialogOperate: false,
       deleting: false,
@@ -495,11 +549,17 @@ export default {
         this.dialogDelete = false;
       });
     },
+    setGoodsVisibilityMultiple(operate) {
+      this.toOperate = operate;
+      this.toSetIds = this.$store.$R.pluck('id', this.selectedGoods);
+      this.dialogOperate = true;
+    },
     setGoodsVisibility() {
       this.setting = true;
       this.setGoodsVisibilityAsync({ ids: this.toSetIds, operate: this.toOperate }).finally(() => {
         this.setting = false;
         this.dialogOperate = false;
+        this.selectedGoods = [];
       });
     },
     searchProducts() {

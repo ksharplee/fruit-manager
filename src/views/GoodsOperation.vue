@@ -207,19 +207,13 @@
                 <template v-slot:default>
                   <thead>
                     <tr class="grey lighten-3">
-                      <th
-                        class="text-center"
-                      >
+                      <th class="text-center">
                         规格值
                       </th>
-                      <th
-                        class="text-center"
-                      >
+                      <th class="text-center">
                         价格
                       </th>
-                      <th
-                        class="text-center"
-                      >
+                      <th class="text-center">
                         重量
                       </th>
                       <th class="pr-10 text-right">
@@ -344,9 +338,7 @@
                   sm="3"
                   lg="2"
                 >
-                  <img-uploader
-                    @update:src="getPicPath($event, product.BaseGoodImages.length)"
-                  />
+                  <img-uploader @update:src="getPicPath($event, product.BaseGoodImages.length)" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -448,13 +440,23 @@ export default {
   computed: {
     ...mapState('product', ['category', 'unit']),
     BaseGoodSpec() {
-      return [{
-        specName: this.specName,
-        BaseGoodSpecItem: this.$store.$R.map(this.$store.$R.prop('dnames'), this.BaseGoodDetail),
-      }];
+      return [
+        {
+          specName: this.specName,
+          BaseGoodSpecItem: this.$store.$R.map(
+            this.$store.$R.prop('dnames'),
+            this.BaseGoodDetail,
+          ),
+        },
+      ];
     },
     categorySon() {
-      return this.$store.$R.filter((item) => !!item, this.$store.$R.flatten(this.$store.$R.map(this.$store.$R.prop('son'), this.category.data)));
+      return this.$store.$R.filter(
+        (item) => !!item,
+        this.$store.$R.flatten(
+          this.$store.$R.map(this.$store.$R.prop('son'), this.category.data),
+        ),
+      );
     },
     categoryFlatten() {
       return this.$store.$R.concat(this.category.data, this.categorySon);
@@ -474,21 +476,29 @@ export default {
     }
   },
   methods: {
-    ...mapActions('product', ['addGoodsAsync', 'getCategoryAsync', 'getUnitAsync', 'getGoodsDetailAsync', 'editGoodsAsync']),
+    ...mapActions('product', [
+      'addGoodsAsync',
+      'getCategoryAsync',
+      'getUnitAsync',
+      'getGoodsDetailAsync',
+      'editGoodsAsync',
+    ]),
     getGoodsDetail() {
       this.loading = true;
-      this.getGoodsDetailAsync({ id: this.id }).then((res) => {
-        if (res.containSpec === '1') {
-          this.BaseGoodDetail = res.BaseGoodDetail;
-          this.specName = res.BaseGoodSpec[0].specName;
+      this.getGoodsDetailAsync({ id: this.id })
+        .then((res) => {
+          if (res.containSpec === '1') {
+            this.BaseGoodDetail = res.BaseGoodDetail;
+            this.specName = res.BaseGoodSpec[0].specName;
+          }
           this.categoryName = res.categoryName;
-        }
-        this.categorySelected = [res.categoryId];
-        this.product = this.$store.$R.dissoc('BaseGoodDetail', res);
-        this.component = WangEditor;
-      }).finally(() => {
-        this.loading = false;
-      });
+          this.categorySelected = [res.categoryId];
+          this.product = this.$store.$R.dissoc('BaseGoodDetail', res);
+          this.component = WangEditor;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     getCategory() {
       this.loadingCate = true;
@@ -510,35 +520,64 @@ export default {
       const R = this.$store.$R;
       const id = this.categorySelected[0];
       this.$set(this.product, 'categoryId', id);
-      this.categoryName = R.prop('dnames', R.find(R.propEq('id', id), this.categoryFlatten));
+      this.categoryName = R.prop(
+        'dnames',
+        R.find(R.propEq('id', id), this.categoryFlatten),
+      );
       this.dialogCategory = false;
     },
     getPicPath(v, i) {
       if (this.product.BaseGoodImages[i]) {
-        this.$set(this.product, 'BaseGoodImages', this.$store.$R.update(i, v, this.product.BaseGoodImages));
+        this.$set(
+          this.product,
+          'BaseGoodImages',
+          this.$store.$R.update(i, v, this.product.BaseGoodImages),
+        );
       } else {
-        this.$set(this.product, 'BaseGoodImages', this.$store.$R.append(v, this.product.BaseGoodImages));
+        this.$set(
+          this.product,
+          'BaseGoodImages',
+          this.$store.$R.append(v, this.product.BaseGoodImages),
+        );
       }
     },
     removeImg(i) {
-      this.$set(this.product, 'BaseGoodImages', this.$store.$R.remove(i, 1, this.product.BaseGoodImages));
+      this.$set(
+        this.product,
+        'BaseGoodImages',
+        this.$store.$R.remove(i, 1, this.product.BaseGoodImages),
+      );
     },
     getMultipleImgs(v) {
-      this.$set(this.product, 'BaseGoodImages', this.$store.$R.concat(this.product.BaseGoodImages, this.$store.$R.take(6 - this.product.BaseGoodImages.length, v)));
+      this.$set(
+        this.product,
+        'BaseGoodImages',
+        this.$store.$R.concat(
+          this.product.BaseGoodImages,
+          this.$store.$R.take(6 - this.product.BaseGoodImages.length, v),
+        ),
+      );
     },
     // 选择商品单位
     selectProductUnit(v) {
       this.$set(this.product, 'unitId', v.id);
     },
     deleteSpec(i) {
-      this.$set(this.product, 'BaseGoodDetail', this.$store.$R.remove(i, 1, this.BaseGoodDetail));
+      this.$set(
+        this.product,
+        'BaseGoodDetail',
+        this.$store.$R.remove(i, 1, this.BaseGoodDetail),
+      );
     },
     addDetail() {
-      this.BaseGoodDetail = this.$store.$R.append({
-        price: '',
-        weight: '',
-        dnames: '',
-      }, this.BaseGoodDetail);
+      this.BaseGoodDetail = this.$store.$R.append(
+        {
+          price: '',
+          weight: '',
+          dnames: '',
+        },
+        this.BaseGoodDetail,
+      );
     },
     operateProduct() {
       if (this.$refs.form.validate()) {
@@ -547,28 +586,38 @@ export default {
         if (this.product.containSpec === '1') {
           params.BaseGoodSpec = this.BaseGoodSpec;
           params.BaseGoodDetail = this.BaseGoodDetail.map((item) => {
-            item.specItems = [{
-              specName: this.specName,
-              specItemName: item.dnames,
-            }];
+            item.specItems = [
+              {
+                specName: this.specName,
+                specItemName: item.dnames,
+              },
+            ];
             return item;
           });
         }
         if (this.id) {
-          this.editGoodsAsync(params).then(() => {
-            this.$router.replace({ name: 'GoodsList' });
-          }).finally(() => {
-            this.submitting = false;
-          });
+          this.editGoodsAsync(params)
+            .then(() => {
+              this.$router.replace({ name: 'GoodsList' });
+            })
+            .finally(() => {
+              this.submitting = false;
+            });
         } else {
-          this.addGoodsAsync(params).then(() => {
-            this.$router.replace({ name: 'GoodsList' });
-          }).finally(() => {
-            this.submitting = false;
-          });
+          this.addGoodsAsync(params)
+            .then(() => {
+              this.$router.replace({ name: 'GoodsList' });
+            })
+            .finally(() => {
+              this.submitting = false;
+            });
         }
       } else {
-        this.$vuetify.goTo(this.$refs.form, { duration: 300, offset: 0, easing: 'easeInOutCubic' });
+        this.$vuetify.goTo(this.$refs.form, {
+          duration: 300,
+          offset: 0,
+          easing: 'easeInOutCubic',
+        });
       }
     },
   },

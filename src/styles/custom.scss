@@ -34,3 +34,7 @@
 .position-relative {
   position: relative;
 }
+
+.data-table-with-select thead tr th:first-child {
+  background-color: #f5f5f5 !important;
+}

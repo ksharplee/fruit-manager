@@ -114,19 +114,8 @@ export default {
       },
     };
   },
-  watch: {
-    show() {
-      if (this.edit) {
-        this.banner = JSON.parse(JSON.stringify(this.target));
-      } else {
-        this.banner = {
-          dnames: '',
-          images: '',
-          links: '',
-          sort: '99',
-        };
-      }
-    },
+  created() {
+    this.banner = JSON.parse(JSON.stringify(this.target));
   },
   methods: {
     getPicPath(v) {

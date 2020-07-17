@@ -89,14 +89,23 @@
         </template>
       </v-data-table>
     </v-skeleton-loader>
-    <banner-operation
+    <component
+      :is="component"
+      :target="target"
+      :show="dialog"
+      :edit="edit"
+      :submitting="editing"
+      @update:close="dialog = false;component = null;"
+      @update:submit="editBanner"
+    />
+    <!-- <banner-operation
       :target="target"
       :show="dialog"
       :edit="edit"
       :submitting="editing"
       @update:close="dialog = false"
       @update:submit="editBanner"
-    />
+    /> -->
     <v-dialog
       v-model="dialogDelete"
       max-width="350"
@@ -138,6 +147,7 @@ export default {
   },
   data() {
     return {
+      component: null,
       loading: false,
       loadingData: false,
       dialog: false,
@@ -198,8 +208,15 @@ export default {
         this.target = options.target;
       } else {
         this.edit = false;
+        this.target = {
+          dnames: '',
+          images: '',
+          links: '',
+          sort: '99',
+        };
       }
       this.dialog = true;
+      this.component = BannerOperation;
     },
     getBanner() {
       this.loading = true;
@@ -215,12 +232,14 @@ export default {
         this.editBannerAsync(v).finally(() => {
           this.editing = false;
           this.dialog = false;
+          this.component = null;
           this.loading = false;
         });
       } else {
         this.addBannerAsync(v).finally(() => {
           this.editing = false;
           this.dialog = false;
+          this.component = null;
           this.loading = false;
         });
       }

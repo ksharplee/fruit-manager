@@ -135,6 +135,22 @@
                 clearable
               />
             </v-col>
+            <!-- <v-col
+              v-if="product.containSpec === '0'"
+              cols="12"
+              sm="6"
+              lg="4"
+              class="py-0"
+            >
+              <v-text-field
+                v-model="product.weight"
+                label="商品重量"
+                dense
+                outlined
+                suffix="克"
+                clearable
+              />
+            </v-col> -->
           </v-row>
         </v-container>
       </v-card>
@@ -144,11 +160,11 @@
         </v-card-title>
         <v-container
           fluid
-          class="px-4 pt-4"
-          :class="product.containSpec === '0' ? 'pb-0' : 'pb-6'"
+          class="px-4 pt-4 pb-6"
         >
+          <!-- :class="product.containSpec === '0' ? 'pb-0' : 'pb-6'" -->
           <v-row>
-            <v-col
+            <!-- <v-col
               cols="12"
               sm="6"
               lg="4"
@@ -162,8 +178,8 @@
                 outlined
                 no-data-text="暂无数据"
               />
-            </v-col>
-            <v-col
+            </v-col> -->
+            <!-- <v-col
               v-if="product.containSpec === '0'"
               key="price"
               cols="12"
@@ -179,9 +195,9 @@
                 outlined
                 clearable
               />
-            </v-col>
+            </v-col> -->
+            <!-- v-else -->
             <v-col
-              v-else
               key="specName"
               cols="12"
               sm="6"
@@ -198,97 +214,97 @@
               />
             </v-col>
           </v-row>
-          <template v-if="product.containSpec === '1'">
-            <v-card
-              outlined
-              class="mb-3"
-            >
-              <v-simple-table class="text-center">
-                <template v-slot:default>
-                  <thead>
-                    <tr class="grey lighten-3">
-                      <th class="text-center">
-                        规格值
-                      </th>
-                      <th class="text-center">
-                        价格
-                      </th>
-                      <th class="text-center">
-                        重量
-                      </th>
-                      <th class="pr-10 text-right">
-                        操作
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(item,i) in BaseGoodDetail"
-                      :key="i"
-                    >
-                      <td class="py-3">
-                        <v-text-field
-                          v-model="item.dnames"
-                          label="规格值"
-                          dense
-                          outlined
-                          hide-details
-                          clearable
-                        />
-                      </td>
-                      <td class="py-3">
-                        <v-text-field
-                          v-model="item.price"
-                          label="价格"
-                          dense
-                          outlined
-                          hide-details
-                          clearable
-                        />
-                      </td>
-                      <td class="py-3">
-                        <v-text-field
-                          v-model="item.weight"
-                          label="重量"
-                          dense
-                          outlined
-                          hide-details
-                          clearable
-                        />
-                      </td>
-                      <td class="text-right pr-7">
-                        <v-tooltip bottom>
-                          <template v-slot:activator="{ on }">
-                            <v-btn
-                              icon
-                              class="mx-1"
-                              :disabled="i === 0 && BaseGoodDetail.length === 1"
-                              v-on="on"
-                              @click="deleteSpec(i)"
-                            >
-                              <v-icon color="secondary">
-                                mdi-delete-forever
-                              </v-icon>
-                            </v-btn>
-                          </template>
-                          <span>删除</span>
-                        </v-tooltip>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-card>
-            <v-btn
-              color="primary"
-              outlined
-              @click="addDetail"
-            >
-              <v-icon left>
-                mdi-plus
-              </v-icon>添加规格商品
-            </v-btn>
-          </template>
+          <!-- <template v-if="product.containSpec === '1'"> -->
+          <v-card
+            outlined
+            class="mb-6"
+          >
+            <v-simple-table class="text-center">
+              <template v-slot:default>
+                <thead>
+                  <tr class="grey lighten-3">
+                    <th class="text-center">
+                      规格值
+                    </th>
+                    <th class="text-center">
+                      价格
+                    </th>
+                    <th class="text-center">
+                      重量(g)
+                    </th>
+                    <th class="pr-10 text-right">
+                      操作
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item,i) in BaseGoodDetail"
+                    :key="i"
+                  >
+                    <td class="py-3">
+                      <v-text-field
+                        v-model="item.dnames"
+                        label="规格值"
+                        dense
+                        outlined
+                        hide-details
+                        clearable
+                      />
+                    </td>
+                    <td class="py-3">
+                      <v-text-field
+                        v-model="item.price"
+                        label="价格"
+                        dense
+                        outlined
+                        hide-details
+                        clearable
+                      />
+                    </td>
+                    <td class="py-3">
+                      <v-text-field
+                        v-model="item.weight"
+                        label="重量"
+                        dense
+                        outlined
+                        hide-details
+                        clearable
+                      />
+                    </td>
+                    <td class="text-right pr-7">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            icon
+                            class="mx-1"
+                            :disabled="i === 0 && BaseGoodDetail.length === 1"
+                            v-on="on"
+                            @click="deleteSpec(i)"
+                          >
+                            <v-icon color="secondary">
+                              mdi-delete-forever
+                            </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>删除</span>
+                      </v-tooltip>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-card>
+          <v-btn
+            color="primary"
+            outlined
+            @click="addDetail"
+          >
+            <v-icon left>
+              mdi-plus
+            </v-icon>添加规格商品
+          </v-btn>
+          <!-- </template> -->
         </v-container>
       </v-card>
       <v-card class="mb-6">
@@ -399,22 +415,22 @@ export default {
       submitting: false,
       dialogCategory: false,
       categorySelected: [],
-      containSpecOptions: [
-        {
-          value: '1',
-          text: '是',
-        },
-        {
-          value: '0',
-          text: '否',
-        },
-      ],
+      // containSpecOptions: [
+      //   {
+      //     value: '1',
+      //     text: '是',
+      //   },
+      //   {
+      //     value: '0',
+      //     text: '否',
+      //   },
+      // ],
       specName: '',
       categoryName: '',
       product: {
         dnames: '',
         categoryId: '',
-        containSpec: '0',
+        containSpec: '1',
         dno: '',
         price: '',
         detailDesc: '',
@@ -487,10 +503,10 @@ export default {
       this.loading = true;
       this.getGoodsDetailAsync({ id: this.id })
         .then((res) => {
-          if (res.containSpec === '1') {
-            this.BaseGoodDetail = res.BaseGoodDetail;
-            this.specName = res.BaseGoodSpec[0].specName;
-          }
+          // if (res.containSpec === '1') {
+          this.BaseGoodDetail = res.BaseGoodDetail;
+          this.specName = res.BaseGoodSpec.specName;
+          // }
           this.categoryName = res.categoryName;
           this.categorySelected = [res.categoryId];
           this.product = this.$store.$R.dissoc('BaseGoodDetail', res);
@@ -561,12 +577,14 @@ export default {
     // 选择商品单位
     selectProductUnit(v) {
       this.$set(this.product, 'unitId', v.id);
+      this.$set(this.product, 'unitName', v.dnames);
     },
     deleteSpec(i) {
+      this.BaseGoodDetail = this.$store.$R.remove(i, 1, this.BaseGoodDetail);
       this.$set(
         this.product,
         'BaseGoodDetail',
-        this.$store.$R.remove(i, 1, this.BaseGoodDetail),
+        this.BaseGoodDetail,
       );
     },
     addDetail() {
@@ -583,18 +601,18 @@ export default {
       if (this.$refs.form.validate()) {
         this.submitting = true;
         const params = this.product;
-        if (this.product.containSpec === '1') {
-          params.BaseGoodSpec = this.BaseGoodSpec;
-          params.BaseGoodDetail = this.BaseGoodDetail.map((item) => {
-            item.specItems = [
-              {
-                specName: this.specName,
-                specItemName: item.dnames,
-              },
-            ];
-            return item;
-          });
-        }
+        // if (this.product.containSpec === '1') {
+        params.BaseGoodSpec = this.BaseGoodSpec;
+        params.BaseGoodDetail = this.BaseGoodDetail.map((item) => {
+          item.specItems = [
+            {
+              specName: this.specName,
+              specItemName: item.dnames,
+            },
+          ];
+          return item;
+        });
+        // }
         if (this.id) {
           this.editGoodsAsync(params)
             .then(() => {

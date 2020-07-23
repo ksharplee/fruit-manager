@@ -39,7 +39,7 @@ export default {
       state.snackbarColor = 'success';
       state.snackbarIcon = 'mdi-check';
     }
-    if (payload.text === '非法访问') {
+    if (payload.text === '登录失效') {
       state.snackbarText = '登录失效，请重新登录';
       router.replace({ name: 'login' });
     } else {

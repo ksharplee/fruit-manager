@@ -294,6 +294,35 @@ export default {
       return Promise.reject(error);
     }
   },
+  // 设置推荐商品到首页，ids：【】 operate ：0 取消  1 设置
+  async setGoodsRecommendAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/g/setRecommend.html', payload);
+      if (res.data.status === 1) {
+        await context.dispatch('getGoodsListAsync', { p: context.state.list.p });
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '设置成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
   // 商品详情
   async getGoodsDetailAsync(context, payload) {
     try {

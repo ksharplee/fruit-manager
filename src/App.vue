@@ -46,8 +46,6 @@ export default {
       'loading',
     ]),
   },
-  created() {
-  },
   methods: {
     toggleSnackbar(v) {
       if (!v) {

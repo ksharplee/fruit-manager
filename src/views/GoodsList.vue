@@ -69,6 +69,30 @@
                   mdi-inbox-arrow-down mdi-18px
                 </v-icon> 下架
               </v-btn>
+              <v-btn
+                text
+                class="mr-2 px-1 py-1"
+                @click="setGoodsRecommendMultiple('1')"
+              >
+                <v-icon
+                  color="grey darken-1"
+                  class="mr-1"
+                >
+                  mdi-heart-circle mdi-18px
+                </v-icon> 设置推荐
+              </v-btn>
+              <v-btn
+                text
+                class="mr-2 px-1 py-1"
+                @click="setGoodsRecommendMultiple('0')"
+              >
+                <v-icon
+                  color="grey darken-1"
+                  class="mr-1"
+                >
+                  mdi-heart-circle-outline mdi-18px
+                </v-icon> 取消推荐
+              </v-btn>
             </v-col>
           </v-row>
           <v-row
@@ -233,6 +257,11 @@
               {{ item.dStatus === '0' ? '未上架' : item.dStatus === '4' ? '已上架' : '已下架' }}
             </div>
           </template>
+          <template v-slot:item.isRecommend="{item}">
+            <div :class="item.isRecommend === '1' ? 'success--text' : 'grey--text'">
+              {{ item.isRecommend === '1' ? '已设置' : '未设置' }}
+            </div>
+          </template>
           <template v-slot:item.action="{item}">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -264,6 +293,21 @@
                 </v-btn>
               </template>
               <span>{{ item.dStatus === '4' ? '下架' : '上架' }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  icon
+                  class="mx-1"
+                  v-on="on"
+                  @click="dialogOperateRecommend = true;toOperateRecommend = item.isRecommend === '1' ? '0' : '1';toSetRecommendIds = [item.id]"
+                >
+                  <v-icon color="info">
+                    mdi-{{ item.isRecommend === '1' ? 'heart-circle' : 'heart-circle-outline' }}
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>{{ item.isRecommend === '1' ? '取消推荐' : '设置推荐' }}</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -382,6 +426,33 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="dialogOperateRecommend"
+      max-width="350"
+    >
+      <v-card>
+        <v-card-title class="title grey lighten-3">
+          确定{{ toOperateRecommend === '1' ? '设置推荐' : '取消推荐' }}吗?
+        </v-card-title>
+        <v-card-actions>
+          <div class="flex-grow-1" />
+          <v-btn
+            color="primary"
+            :loading="settingRecommend"
+            :disabled="settingRecommend"
+            @click="setGoodsRecommend"
+          >
+            提交
+          </v-btn>
+          <v-btn
+            color="secondary"
+            @click="dialogOperateRecommend = false"
+          >
+            取消
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -395,6 +466,7 @@ export default {
       selectedGoods: [],
       dialogDelete: false,
       dialogOperate: false,
+      dialogOperateRecommend: false,
       deleting: false,
       toDeleteId: '',
       loading: false,
@@ -402,6 +474,9 @@ export default {
       setting: false,
       toSetIds: [],
       toOperate: '',
+      settingRecommend: false,
+      toSetRecommendIds: [],
+      toOperateRecommend: '',
       dialogCategory: false,
       loadingCate: false,
       categoryName: '',
@@ -467,6 +542,13 @@ export default {
           class: 'grey lighten-4',
         },
         {
+          text: '推荐',
+          value: 'isRecommend',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
           text: '操作',
           value: 'action',
           align: 'right',
@@ -514,11 +596,24 @@ export default {
     }
   },
   methods: {
-    ...mapActions('product', ['getGoodsListAsync', 'deleteGoodsAsync', 'setGoodsVisibilityAsync', 'getCategoryAsync']),
+    ...mapActions('product', ['getGoodsListAsync', 'deleteGoodsAsync', 'setGoodsVisibilityAsync', 'getCategoryAsync', 'setGoodsRecommendAsync']),
     getCategory() {
       this.loadingCate = true;
       this.getCategoryAsync().finally(() => {
         this.loadingCate = false;
+      });
+    },
+    setGoodsRecommendMultiple(operate) {
+      this.toOperateRecommend = operate;
+      this.toSetRecommendIds = this.$store.$R.pluck('id', this.selectedGoods);
+      this.dialogOperateRecommend = true;
+    },
+    setGoodsRecommend() {
+      this.settingRecommend = true;
+      this.setGoodsRecommendAsync({ operate: this.toOperateRecommend, ids: this.toSetRecommendIds }).finally(() => {
+        this.settingRecommend = false;
+        this.dialogOperateRecommend = false;
+        this.selectedGoods = [];
       });
     },
     // 获取当前产品分类

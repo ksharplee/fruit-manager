@@ -44,7 +44,6 @@
             v-for="(child, i) in item.children"
             :key="i"
             :to="child.url"
-            exact
             active-class="primary--text"
           >
             <v-list-item-content>
@@ -111,6 +110,7 @@ export default {
         children: [
           { text: '广告列表', url: { name: 'SettingAd' } },
           { text: '公告列表', url: { name: 'SettingNotice' } },
+          { text: '活动列表', url: { name: 'SettingPromotion' } },
         ],
       },
       {

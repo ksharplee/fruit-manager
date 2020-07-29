@@ -232,6 +232,9 @@
                     <th class="text-center">
                       重量(g)
                     </th>
+                    <th class="text-center">
+                      库存
+                    </th>
                     <th class="pr-10 text-right">
                       操作
                     </th>
@@ -266,6 +269,16 @@
                       <v-text-field
                         v-model="item.weight"
                         label="重量"
+                        dense
+                        outlined
+                        hide-details
+                        clearable
+                      />
+                    </td>
+                    <td class="py-3">
+                      <v-text-field
+                        v-model="item.stockNumber"
+                        label="库存"
                         dense
                         outlined
                         hide-details

@@ -1,18 +1,5 @@
 <template>
   <div>
-    <div class="text-h6 d-flex flex-wrap align-center pb-4">
-      商品列表
-      <v-btn
-        color="primary"
-        class="ml-auto"
-        depressed
-        :to="{name: 'GoodsAdd'}"
-      >
-        <v-icon left>
-          mdi-plus
-        </v-icon>添加商品
-      </v-btn>
-    </div>
     <v-skeleton-loader
       :loading="loadingData"
       height="500"
@@ -20,6 +7,9 @@
       type="table"
     >
       <v-card>
+        <v-card-title class="text-h6 grey lighten-3 pa-4">
+          选择活动商品
+        </v-card-title>
         <v-container
           fluid
           class="py-0"
@@ -46,52 +36,17 @@
                 class="ml-8 mr-4"
               />
               <v-btn
-                text
-                class="mr-2 px-1 py-1"
-                @click="setGoodsVisibilityMultiple('4')"
+                color="primary"
+                :ripple="false"
+                @click="getSelectedGoods"
               >
                 <v-icon
-                  color="grey darken-1"
-                  class="mr-1"
+                  left
+                  dark
                 >
-                  mdi-inbox-arrow-up mdi-18px
-                </v-icon> 上架
-              </v-btn>
-              <v-btn
-                text
-                class="mr-2 px-1 py-1"
-                @click="setGoodsVisibilityMultiple('1')"
-              >
-                <v-icon
-                  color="grey darken-1"
-                  class="mr-1"
-                >
-                  mdi-inbox-arrow-down mdi-18px
-                </v-icon> 下架
-              </v-btn>
-              <v-btn
-                text
-                class="mr-2 px-1 py-1"
-                @click="setGoodsRecommendMultiple('1')"
-              >
-                <v-icon
-                  color="grey darken-1"
-                  class="mr-1"
-                >
-                  mdi-heart-circle mdi-18px
-                </v-icon> 设置推荐
-              </v-btn>
-              <v-btn
-                text
-                class="mr-2 px-1 py-1"
-                @click="setGoodsRecommendMultiple('0')"
-              >
-                <v-icon
-                  color="grey darken-1"
-                  class="mr-1"
-                >
-                  mdi-heart-circle-outline mdi-18px
-                </v-icon> 取消推荐
+                  mdi-check
+                </v-icon>
+                确定选择
               </v-btn>
             </v-col>
           </v-row>
@@ -257,74 +212,6 @@
               {{ item.dStatus === '0' ? '未上架' : item.dStatus === '4' ? '已上架' : '已下架' }}
             </div>
           </template>
-          <template v-slot:item.isRecommend="{item}">
-            <div :class="item.isRecommend === '1' ? 'success--text' : 'grey--text'">
-              {{ item.isRecommend === '1' ? '已设置' : '未设置' }}
-            </div>
-          </template>
-          <template v-slot:item.action="{item}">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  :disabled="item.dStatus === '4'"
-                  :to="{name: 'GoodsEdit', params: {id: item.id}}"
-                  v-on="on"
-                >
-                  <v-icon color="teal">
-                    mdi-pencil-circle
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>编辑</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  v-on="on"
-                  @click="dialogOperate = true;toOperate = item.dStatus === '4' ? '1' : '4';toSetIds = [item.id]"
-                >
-                  <v-icon color="error lighten-2">
-                    mdi-{{ item.dStatus === '4' ? 'arrow-down-circle' : 'arrow-up-circle' }}
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>{{ item.dStatus === '4' ? '下架' : '上架' }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  v-on="on"
-                  @click="dialogOperateRecommend = true;toOperateRecommend = item.isRecommend === '1' ? '0' : '1';toSetRecommendIds = [item.id]"
-                >
-                  <v-icon color="info">
-                    mdi-{{ item.isRecommend === '1' ? 'heart-circle' : 'heart-circle-outline' }}
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>{{ item.isRecommend === '1' ? '取消推荐' : '设置推荐' }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  class="mx-1"
-                  v-on="on"
-                  @click="dialogDelete = true;toDeleteId = item.id"
-                >
-                  <v-icon color="secondary">
-                    mdi-delete-forever
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>删除</span>
-            </v-tooltip>
-          </template>
           <template v-slot:item.BaseGoodImages="{item}">
             <v-img
               v-if="item.BaseGoodImages.length"
@@ -372,87 +259,6 @@
         </div>
       </v-card>
     </v-skeleton-loader>
-    <v-dialog
-      v-model="dialogDelete"
-      max-width="350"
-    >
-      <v-card>
-        <v-card-title class="title grey lighten-3">
-          确定删除吗?
-        </v-card-title>
-        <v-card-actions>
-          <div class="flex-grow-1" />
-          <v-btn
-            color="primary"
-            :loading="deleting"
-            :disabled="deleting"
-            @click="deleteGoods"
-          >
-            提交
-          </v-btn>
-          <v-btn
-            color="secondary"
-            @click="dialogDelete = false"
-          >
-            取消
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog
-      v-model="dialogOperate"
-      max-width="350"
-    >
-      <v-card>
-        <v-card-title class="title grey lighten-3">
-          确定{{ toOperate === '4' ? '上架' : '下架' }}吗?
-        </v-card-title>
-        <v-card-actions>
-          <div class="flex-grow-1" />
-          <v-btn
-            color="primary"
-            :loading="setting"
-            :disabled="setting"
-            @click="setGoodsVisibility"
-          >
-            提交
-          </v-btn>
-          <v-btn
-            color="secondary"
-            @click="dialogOperate = false"
-          >
-            取消
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog
-      v-model="dialogOperateRecommend"
-      max-width="350"
-    >
-      <v-card>
-        <v-card-title class="title grey lighten-3">
-          确定{{ toOperateRecommend === '1' ? '设置推荐' : '取消推荐' }}吗?
-        </v-card-title>
-        <v-card-actions>
-          <div class="flex-grow-1" />
-          <v-btn
-            color="primary"
-            :loading="settingRecommend"
-            :disabled="settingRecommend"
-            @click="setGoodsRecommend"
-          >
-            提交
-          </v-btn>
-          <v-btn
-            color="secondary"
-            @click="dialogOperateRecommend = false"
-          >
-            取消
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -460,7 +266,7 @@
 import { mapState, mapActions } from 'vuex';
 
 export default {
-  name: 'GoodsList',
+  name: 'GoodsForSelectVue',
   data() {
     return {
       selectedGoods: [],
@@ -541,26 +347,12 @@ export default {
           sortable: false,
           class: 'grey lighten-4',
         },
-        {
-          text: '推荐',
-          value: 'isRecommend',
-          align: 'center',
-          sortable: false,
-          class: 'grey lighten-4',
-        },
-        {
-          text: '操作',
-          value: 'action',
-          align: 'right',
-          sortable: false,
-          width: '300px',
-          class: 'grey lighten-4 pr-10',
-        },
       ],
     };
   },
   computed: {
-    ...mapState('product', ['list', 'category']),
+    ...mapState('setting', ['list']),
+    ...mapState('product', ['category']),
     page: {
       set(value) {
         this.list.p = value;
@@ -596,24 +388,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('product', ['getGoodsListAsync', 'deleteGoodsAsync', 'setGoodsVisibilityAsync', 'getCategoryAsync', 'setGoodsRecommendAsync']),
+    ...mapActions('setting', ['getGoodsListAsync']),
+    ...mapActions('product', ['getCategoryAsync']),
     getCategory() {
       this.loadingCate = true;
       this.getCategoryAsync().finally(() => {
         this.loadingCate = false;
-      });
-    },
-    setGoodsRecommendMultiple(operate) {
-      this.toOperateRecommend = operate;
-      this.toSetRecommendIds = this.$store.$R.pluck('id', this.selectedGoods);
-      this.dialogOperateRecommend = true;
-    },
-    setGoodsRecommend() {
-      this.settingRecommend = true;
-      this.setGoodsRecommendAsync({ operate: this.toOperateRecommend, ids: this.toSetRecommendIds }).finally(() => {
-        this.settingRecommend = false;
-        this.dialogOperateRecommend = false;
-        this.selectedGoods = [];
       });
     },
     // 获取当前产品分类
@@ -637,26 +417,6 @@ export default {
     changePagination() {
       this.getGoodsList({ p: this.page + 1 });
     },
-    deleteGoods() {
-      this.deleting = true;
-      this.deleteGoodsAsync({ id: this.toDeleteId }).finally(() => {
-        this.deleting = false;
-        this.dialogDelete = false;
-      });
-    },
-    setGoodsVisibilityMultiple(operate) {
-      this.toOperate = operate;
-      this.toSetIds = this.$store.$R.pluck('id', this.selectedGoods);
-      this.dialogOperate = true;
-    },
-    setGoodsVisibility() {
-      this.setting = true;
-      this.setGoodsVisibilityAsync({ ids: this.toSetIds, operate: this.toOperate }).finally(() => {
-        this.setting = false;
-        this.dialogOperate = false;
-        this.selectedGoods = [];
-      });
-    },
     searchProducts() {
       this.getGoodsList({
         ...this.search,
@@ -672,6 +432,9 @@ export default {
       };
       this.categoryName = '';
       this.getGoodsList({ p: 1 });
+    },
+    getSelectedGoods() {
+      this.$emit('update:selected', this.selectedGoods);
     },
   },
 };

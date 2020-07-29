@@ -7,4 +7,13 @@ export default {
     status: 0,
     data: [],
   },
+  promotion: {
+    status: 0,
+    data: [],
+  },
+  list: {
+    status: 0,
+    p: 1,
+    data: [],
+  },
 };

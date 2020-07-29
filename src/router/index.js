@@ -30,17 +30,17 @@ const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
       },
       {
-        path: '/goods-list',
+        path: '/goods',
         name: 'GoodsList',
         component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsList.vue'),
       },
       {
-        path: '/goods-add',
+        path: '/goods/add',
         name: 'GoodsAdd',
         component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsOperation.vue'),
       },
       {
-        path: '/goods-edit/:id',
+        path: '/goods/edit/:id',
         name: 'GoodsEdit',
         component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsOperation.vue'),
         props: true,
@@ -69,6 +69,22 @@ const routes = [
         path: '/setting-notice/:id',
         name: 'SettingNoticeOperation',
         component: () => import(/* webpackChunkName: "setting" */ '../views/SettingNoticeOperation.vue'),
+        props: true,
+      },
+      {
+        path: '/setting-promotion',
+        name: 'SettingPromotion',
+        component: () => import(/* webpackChunkName: "setting" */ '../views/SettingPromotion.vue'),
+      },
+      {
+        path: '/setting-promotion/add',
+        name: 'SettingPromotionAdd',
+        component: () => import(/* webpackChunkName: "setting" */ '../views/SettingPromotionOperation.vue'),
+      },
+      {
+        path: '/setting-promotion/edit/:id',
+        name: 'SettingPromotionEdit',
+        component: () => import(/* webpackChunkName: "setting" */ '../views/SettingPromotionOperation.vue'),
         props: true,
       },
       {

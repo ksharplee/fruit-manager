@@ -1,4 +1,104 @@
 export default {
+  // 商品列表
+  async getGoodsListAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/g/lists.html', payload);
+      if (res.data.status === 1) {
+        context.commit('SET_GOODS_LIST', res.data);
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 活动列表
+  async getPromotionAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/lists.html', payload);
+      if (res.data.status === 1) {
+        context.commit('SET_SETTING_PROMOTION', res.data.data ? res.data.data : []);
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 活动添加
+  async addPromotionAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/add.html', payload);
+      if (res.data.status === 1) {
+        await context.dispatch('getPromotionAsync');
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '添加活动成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 广告删除
+  async deletePromotionAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/delete.html', payload);
+      if (res.data.status === 1) {
+        context.dispatch('getPromotionAsync');
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '删除活动成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
   // 广告列表
   async getBannerAsync(context, payload) {
     try {

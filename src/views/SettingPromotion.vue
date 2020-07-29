@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="text-h6 d-flex flex-wrap align-center pb-4">
-      系统广告
+      促销活动
       <v-btn
         color="primary"
         class="ml-auto"
-        @click="openDialog(null)"
+        :to="{name: 'SettingPromotionAdd'}"
       >
         <v-icon left>
           mdi-plus
-        </v-icon>添加轮播图
+        </v-icon>添加活动
       </v-btn>
     </div>
     <v-skeleton-loader
@@ -21,7 +21,7 @@
       <v-card>
         <v-data-table
           :headers="headers"
-          :items="banner.data"
+          :items="promotion.data"
           :loading="loading"
           loading-text="加载中..."
           hide-default-footer
@@ -29,29 +29,8 @@
           fixed-header
           :items-per-page="10"
         >
-          <template v-slot:item.images="{item}">
-            <v-img
-              :src="item.images"
-              aspect-ratio="2"
-              class="grey lighten-4 ma-2"
-            >
-              <template v-slot:placeholder>
-                <v-row
-                  class="fill-height ma-0"
-                  align="center"
-                  justify="center"
-                >
-                  <v-icon v-if="!item.images">
-                    mdi-alert-octagon-outline
-                  </v-icon>
-                  <v-progress-circular
-                    v-else
-                    indeterminate
-                    color="grey lighten-2"
-                  />
-                </v-row>
-              </template>
-            </v-img>
+          <template v-slot:item.dStatus="{item}">
+            <span :class="item.dStatus === '1' ? 'success--text' : 'grey--text'">{{ item.dStatus === '1' ? '1' : '2' }}</span>
           </template>
           <template v-slot:item.action="{item}">
             <v-tooltip bottom>
@@ -91,23 +70,6 @@
         </v-data-table>
       </v-card>
     </v-skeleton-loader>
-    <component
-      :is="component"
-      :target="target"
-      :show="dialog"
-      :edit="edit"
-      :submitting="editing"
-      @update:close="dialog = false;component = null;"
-      @update:submit="editBanner"
-    />
-    <!-- <banner-operation
-      :target="target"
-      :show="dialog"
-      :edit="edit"
-      :submitting="editing"
-      @update:close="dialog = false"
-      @update:submit="editBanner"
-    /> -->
     <v-dialog
       v-model="dialogDelete"
       max-width="350"
@@ -122,7 +84,7 @@
             color="primary"
             :loading="deleting"
             :disabled="deleting"
-            @click="deleteBanner"
+            @click="deletePromotion"
           >
             提交
           </v-btn>
@@ -139,49 +101,40 @@
 </template>
 
 <script>
-import BannerOperation from '@/components/BannerOperation.vue';
-import { mapActions, mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
-  name: 'SettingAd',
-  components: {
-    BannerOperation,
-  },
+  name: 'SettingPromotion',
   data() {
     return {
-      component: null,
-      loading: false,
-      loadingData: false,
-      dialog: false,
-      edit: false,
-      editing: false,
-      desserts: [],
-      dialogDelete: false,
-      deleting: false,
-      target: {},
-      toDeleteId: '',
       headers: [
         {
-          text: '序号',
-          value: 'sort',
-          align: 'center',
-          sortable: false,
-          class: 'grey lighten-4',
-        },
-        {
-          text: '标题',
+          text: '主题',
           value: 'dnames',
           align: 'center',
           sortable: false,
           class: 'grey lighten-4',
         },
         {
-          text: '图片',
-          value: 'images',
+          text: '状态',
+          value: 'dStatus',
           align: 'center',
-          width: '150',
-          class: 'pr-10 grey lighten-4',
           sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
+          text: '开始时间',
+          value: 'startTime',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
+          text: '结束时间',
+          value: 'endTime',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
         },
         {
           text: '操作',
@@ -191,72 +144,35 @@ export default {
           sortable: false,
         },
       ],
+      loadingData: false,
+      loading: false,
+      dialogDelete: false,
+      toDeleteId: '',
+      deleting: false,
     };
   },
   computed: {
-    ...mapState('setting', ['banner']),
+    ...mapState('setting', ['promotion']),
   },
   created() {
-    if (!this.banner.status) {
+    if (!this.promotion.status) {
       this.loadingData = true;
-      this.getBanner();
+      this.getPromotion();
     }
   },
   methods: {
-    ...mapActions('setting', [
-      'getBannerAsync',
-      'addBannerAsync',
-      'editBannerAsync',
-      'deleteBannerAsync',
-    ]),
-    openDialog(options) {
-      if (options) {
-        this.edit = true;
-        this.target = options.target;
-      } else {
-        this.edit = false;
-        this.target = {
-          dnames: '',
-          images: '',
-          links: '',
-          sort: '99',
-        };
-      }
-      this.dialog = true;
-      this.component = BannerOperation;
-    },
-    getBanner() {
+    ...mapActions('setting', ['getPromotionAsync', 'deletePromotionAsync']),
+    getPromotion() {
       this.loading = true;
-      this.getBannerAsync().finally(() => {
+      this.getPromotionAsync().finally(() => {
         this.loading = false;
         this.loadingData = false;
       });
     },
-    editBanner(v) {
-      this.editing = true;
-      this.loading = true;
-      if (this.edit) {
-        this.editBannerAsync(v).finally(() => {
-          this.editing = false;
-          this.dialog = false;
-          this.component = null;
-          this.loading = false;
-        });
-      } else {
-        this.addBannerAsync(v).finally(() => {
-          this.editing = false;
-          this.dialog = false;
-          this.component = null;
-          this.loading = false;
-        });
-      }
-    },
-    deleteBanner() {
+    deletePromotion() {
       this.deleting = true;
-      this.loading = true;
-      this.deleteBannerAsync({ id: this.toDeleteId }).finally(() => {
+      this.deletePromotionAsync({ id: this.toDeleteId }).finally(() => {
         this.deleting = false;
-        this.loading = false;
         this.dialogDelete = false;
       });
     },

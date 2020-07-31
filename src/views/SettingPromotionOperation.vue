@@ -235,11 +235,11 @@
             :items-per-page="10"
             @page-count="pageCount = $event"
           >
-            <template v-slot:item.dStatus="{item}">
+            <!-- <template v-slot:item.dStatus="{item}">
               <div :class="item.dStatus === '4' ? 'success--text' : 'grey--text'">
                 {{ item.dStatus === '0' ? '未上架' : item.dStatus === '4' ? '已上架' : '已下架' }}
               </div>
-            </template>
+            </template> -->
             <template v-slot:item.BaseGoodImages="{item}">
               <v-img
                 v-if="item.BaseGoodImages.length"
@@ -383,13 +383,13 @@ export default {
           sortable: false,
           class: 'grey lighten-4',
         },
-        {
-          text: '状态',
-          value: 'dStatus',
-          align: 'center',
-          sortable: false,
-          class: 'grey lighten-4',
-        },
+        // {
+        //   text: '状态',
+        //   value: 'dStatus',
+        //   align: 'center',
+        //   sortable: false,
+        //   class: 'grey lighten-4',
+        // },
         {
           text: '操作',
           value: 'action',
@@ -416,40 +416,68 @@ export default {
       return this.$store.$R.pluck('id', this.selectedGoods);
     },
     BaseActivityDetail() {
-      return this.$store.$R.map((item) => ({
-        goodId: item.id,
-        goodName: item.dnames,
-        goodImage: item.BaseGoodImages.length ? item.BaseGoodImages[0].image : '',
-        price: item.price,
-        dno: item.dno,
-        times: this.times,
-      }), this.selectedGoods);
+      return this.$store.$R.map(
+        (item) => ({
+          goodId: item.id,
+          goodName: item.dnames,
+          goodImage: item.BaseGoodImages.length
+            ? item.BaseGoodImages[0].image
+            : '',
+          price: item.price,
+          dno: item.dno,
+          times: this.times,
+        }),
+        this.selectedGoods,
+      );
     },
   },
+  created() {
+    if (this.id) {
+      this.loadPageData();
+    }
+  },
   methods: {
-    ...mapActions('setting', ['addPromotionAsync']),
+    ...mapActions('setting', ['addPromotionAsync', 'getPromotionDetailAsync', 'editPromotionAsync']),
     operatePromotion() {
       if (this.$refs.form.validate()) {
         if (this.selectedGoods.length) {
           this.submitting = true;
-          this.addPromotionAsync({
-            dnames: this.dnames,
-            startTime: this.startTimeStr,
-            endTime: this.endTimeStr,
-            BaseActivityDetail: this.BaseActivityDetail,
-          }).then(() => {
-            this.$router.replace({ name: 'SettingPromotion' });
-          }).finally(() => {
-            this.submitting = false;
-          });
+          if (this.id) {
+            this.editPromotionAsync({
+              id: this.id,
+              dnames: this.dnames,
+              startTime: this.startTimeStr,
+              endTime: this.endTimeStr,
+              BaseActivityDetail: this.BaseActivityDetail.map((item) => {
+                item.activityId = this.id;
+                return item;
+              }),
+            })
+              .then(() => {
+                this.$router.replace({ name: 'SettingPromotion' });
+              })
+              .finally(() => {
+                this.submitting = false;
+              });
+          } else {
+            this.addPromotionAsync({
+              dnames: this.dnames,
+              startTime: this.startTimeStr,
+              endTime: this.endTimeStr,
+              BaseActivityDetail: this.BaseActivityDetail,
+            })
+              .then(() => {
+                this.$router.replace({ name: 'SettingPromotion' });
+              })
+              .finally(() => {
+                this.submitting = false;
+              });
+          }
         } else {
-          this.$store.commit(
-            'TOGGLE_SNACKBAR',
-            {
-              type: 'error',
-              text: '请选择活动商品',
-            },
-          );
+          this.$store.commit('TOGGLE_SNACKBAR', {
+            type: 'error',
+            text: '请选择活动商品',
+          });
         }
       }
     },
@@ -472,6 +500,26 @@ export default {
         1,
         this.selectedGoods,
       );
+    },
+    loadPageData() {
+      this.getPromotionDetailAsync({ id: this.id }).then((res) => {
+        this.dnames = res.dnames;
+        this.times = res.BaseActivityDetail[0].times;
+        this.selectedGoods = res.BaseActivityDetail.map((item) => ({
+          id: item.goodId,
+          dnames: item.goodName,
+          BaseGoodImages: [{
+            image: item.goodImage,
+          }],
+          price: item.price,
+          dno: item.dno,
+          times: this.times,
+        }));
+        this.startDate = res.startTime.substr(0, 10);
+        this.startTime = res.startTime.substr(11, 18);
+        this.endDate = res.endTime.substr(0, 10);
+        this.endTime = res.endTime.substr(11, 18);
+      });
     },
   },
 };

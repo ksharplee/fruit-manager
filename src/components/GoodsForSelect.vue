@@ -207,11 +207,11 @@
           :items-per-page="10"
           class="data-table-with-select"
         >
-          <template v-slot:item.dStatus="{item}">
+          <!-- <template v-slot:item.dStatus="{item}">
             <div :class="item.dStatus === '4' ? 'success--text' : 'grey--text'">
               {{ item.dStatus === '0' ? '未上架' : item.dStatus === '4' ? '已上架' : '已下架' }}
             </div>
-          </template>
+          </template> -->
           <template v-slot:item.BaseGoodImages="{item}">
             <v-img
               v-if="item.BaseGoodImages.length"
@@ -266,7 +266,7 @@
 import { mapState, mapActions } from 'vuex';
 
 export default {
-  name: 'GoodsForSelectVue',
+  name: 'GoodsForSelect',
   data() {
     return {
       selectedGoods: [],
@@ -340,13 +340,13 @@ export default {
           sortable: false,
           class: 'grey lighten-4',
         },
-        {
-          text: '状态',
-          value: 'dStatus',
-          align: 'center',
-          sortable: false,
-          class: 'grey lighten-4',
-        },
+        // {
+        //   text: '状态',
+        //   value: 'dStatus',
+        //   align: 'center',
+        //   sortable: false,
+        //   class: 'grey lighten-4',
+        // },
       ],
     };
   },

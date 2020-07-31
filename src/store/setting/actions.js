@@ -70,8 +70,86 @@ export default {
       return Promise.reject(error);
     }
   },
-  // 广告删除
-  async deletePromotionAsync(context, payload) {
+  // 活动编辑
+  async editPromotionAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/edit.html', payload);
+      if (res.data.status === 1) {
+        await context.dispatch('getPromotionAsync');
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '编辑活动成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 活动详情
+  async getPromotionDetailAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/detail.html', payload);
+      if (res.data.status === 1) {
+        return Promise.resolve(res.data.data);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 活动开始
+  async startPromotionAsync(context, payload) {
+    try {
+      const res = await this.$http.post('/ac/start.html', payload);
+      if (res.data.status === 1) {
+        await context.dispatch('getPromotionAsync');
+        context.commit(
+          'TOGGLE_SNACKBAR',
+          {
+            type: 'success',
+            text: '开始活动成功',
+          },
+          { root: true },
+        );
+        return Promise.resolve(res.data.status);
+      }
+      throw new Error(res.data.info);
+    } catch (error) {
+      context.commit(
+        'TOGGLE_SNACKBAR',
+        {
+          type: 'error',
+          text: error.message,
+        },
+        { root: true },
+      );
+      return Promise.reject(error);
+    }
+  },
+  // 活动关闭
+  async closePromotionAsync(context, payload) {
     try {
       const res = await this.$http.post('/ac/delete.html', payload);
       if (res.data.status === 1) {
@@ -80,7 +158,7 @@ export default {
           'TOGGLE_SNACKBAR',
           {
             type: 'success',
-            text: '删除活动成功',
+            text: '关闭活动成功',
           },
           { root: true },
         );

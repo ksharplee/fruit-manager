@@ -30,7 +30,7 @@
           :items-per-page="10"
         >
           <template v-slot:item.dStatus="{item}">
-            <span :class="item.dStatus === '1' ? 'success--text' : 'grey--text'">{{ item.dStatus === '1' ? '1' : '2' }}</span>
+            <span :class="item.dStatus === '1' ? 'success--text' : 'grey--text'">{{ item.dStatus | statusStr }}</span>
           </template>
           <template v-slot:item.action="{item}">
             <v-tooltip bottom>
@@ -38,11 +38,9 @@
                 <v-btn
                   icon
                   class="mx-1"
+                  :disabled="item.dStatus === '1'"
+                  :to="{name: 'SettingPromotionEdit', params: {id: item.id}}"
                   v-on="on"
-                  @click="openDialog({
-                    target: item,
-                    edit: true,
-                  })"
                 >
                   <v-icon color="teal">
                     mdi-pencil-circle
@@ -57,40 +55,82 @@
                   icon
                   class="mx-1"
                   v-on="on"
-                  @click="dialogDelete = true;toDeleteId = item.id"
+                  @click="dialogStart = true;toStartId = item.id"
                 >
-                  <v-icon color="secondary">
-                    mdi-delete-forever
+                  <v-icon color="error lighten-2">
+                    mdi-play-circle
                   </v-icon>
                 </v-btn>
               </template>
-              <span>删除</span>
+              <span>开始</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  icon
+                  class="mx-1"
+                  v-on="on"
+                  @click="dialogClose = true;toCloseId = item.id"
+                >
+                  <v-icon color="secondary">
+                    mdi-stop-circle
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>关闭</span>
             </v-tooltip>
           </template>
         </v-data-table>
       </v-card>
     </v-skeleton-loader>
     <v-dialog
-      v-model="dialogDelete"
+      v-model="dialogClose"
       max-width="350"
     >
       <v-card>
         <v-card-title class="title grey lighten-3">
-          确定删除吗?
+          确定关闭本次活动吗?
         </v-card-title>
         <v-card-actions>
           <div class="flex-grow-1" />
           <v-btn
             color="primary"
-            :loading="deleting"
-            :disabled="deleting"
-            @click="deletePromotion"
+            :loading="closing"
+            :disabled="closing"
+            @click="closePromotion"
           >
             提交
           </v-btn>
           <v-btn
             color="secondary"
-            @click="dialogDelete = false"
+            @click="dialogClose = false"
+          >
+            取消
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogStart"
+      max-width="350"
+    >
+      <v-card>
+        <v-card-title class="title grey lighten-3">
+          确定开始本次活动吗?
+        </v-card-title>
+        <v-card-actions>
+          <div class="flex-grow-1" />
+          <v-btn
+            color="primary"
+            :loading="starting"
+            :disabled="starting"
+            @click="startPromotion"
+          >
+            提交
+          </v-btn>
+          <v-btn
+            color="secondary"
+            @click="dialogStart = false"
           >
             取消
           </v-btn>
@@ -105,6 +145,20 @@ import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'SettingPromotion',
+  filters: {
+    statusStr(status) {
+      switch (status) {
+        case '0':
+          return '未开始';
+        case '1':
+          return '已开始';
+        case '2':
+          return '已关闭';
+        default:
+          return '已结束';
+      }
+    },
+  },
   data() {
     return {
       headers: [
@@ -115,13 +169,7 @@ export default {
           sortable: false,
           class: 'grey lighten-4',
         },
-        {
-          text: '状态',
-          value: 'dStatus',
-          align: 'center',
-          sortable: false,
-          class: 'grey lighten-4',
-        },
+
         {
           text: '开始时间',
           value: 'startTime',
@@ -137,6 +185,13 @@ export default {
           class: 'grey lighten-4',
         },
         {
+          text: '状态',
+          value: 'dStatus',
+          align: 'center',
+          sortable: false,
+          class: 'grey lighten-4',
+        },
+        {
           text: '操作',
           value: 'action',
           align: 'right',
@@ -146,9 +201,12 @@ export default {
       ],
       loadingData: false,
       loading: false,
-      dialogDelete: false,
-      toDeleteId: '',
-      deleting: false,
+      dialogClose: false,
+      toCloseId: '',
+      closing: false,
+      dialogStart: false,
+      toStartId: '',
+      starting: false,
     };
   },
   computed: {
@@ -161,7 +219,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('setting', ['getPromotionAsync', 'deletePromotionAsync']),
+    ...mapActions('setting', ['getPromotionAsync', 'closePromotionAsync', 'startPromotionAsync']),
     getPromotion() {
       this.loading = true;
       this.getPromotionAsync().finally(() => {
@@ -169,11 +227,18 @@ export default {
         this.loadingData = false;
       });
     },
-    deletePromotion() {
-      this.deleting = true;
-      this.deletePromotionAsync({ id: this.toDeleteId }).finally(() => {
-        this.deleting = false;
-        this.dialogDelete = false;
+    closePromotion() {
+      this.closing = true;
+      this.closePromotionAsync({ id: this.toCloseId }).finally(() => {
+        this.closing = false;
+        this.dialogClose = false;
+      });
+    },
+    startPromotion() {
+      this.starting = true;
+      this.startPromotionAsync({ id: this.toStartId }).finally(() => {
+        this.starting = false;
+        this.dialogStart = false;
       });
     },
   },

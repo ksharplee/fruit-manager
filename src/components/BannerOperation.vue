@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import ImgUploader from './ImgUploader.vue';
+import ImgUploader from '@/components/ImgUploader.vue';
 
 export default {
   name: 'BannerOperation',

@@ -23,6 +23,9 @@
           <div class="flex-grow-1">
             分类名称
           </div>
+          <div style="width:500px">
+            图片
+          </div>
           <div style="width:150px">
             排序
           </div>
@@ -49,7 +52,37 @@
           </template>
           <template v-slot:append="{ item }">
             <div class="d-flex text-center align-center">
-              <div style="width:150px">
+              <div style="width:500px">
+                <v-img
+                  v-if="item.dLevel === '2'"
+                  :src="item.image"
+                  aspect-ratio="1"
+                  max-width="50"
+                  max-height="50"
+                  class="grey lighten-4 my-2 mx-auto"
+                >
+                  <template v-slot:placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-icon
+                        v-if="!item.image"
+                        color="grey"
+                      >
+                        mdi-alert-octagon-outline
+                      </v-icon>
+                      <v-progress-circular
+                        v-else
+                        indeterminate
+                        color="grey lighten-2"
+                      />
+                    </v-row>
+                  </template>
+                </v-img>
+              </div>
+              <div style="width:150px;">
                 {{ item.sort }}
               </div>
               <div
@@ -121,7 +154,7 @@
     </v-skeleton-loader>
     <v-dialog
       v-model="dialogAdd"
-      width="800"
+      width="650"
     >
       <v-card>
         <v-form
@@ -132,39 +165,48 @@
             添加分类
           </v-card-title>
           <div class="pa-4">
-            <v-row class="font-weight-bold">
+            <!-- <v-row class="font-weight-bold">
               <v-col md="6">
                 分类名称
               </v-col>
               <v-col md="6">
                 排序
               </v-col>
-            </v-row>
+            </v-row> -->
             <v-row
               class="mb-2"
+              align="center"
             >
-              <v-col md="6">
-                <v-text-field
-                  v-model="cateToAdd.dnames"
-                  :rules="nameRules"
-                  placeholder="请输入分类名"
-                  outlined
-                  clearable
-                  required
-                  single-line
-                  hide-details
-                  dense
+              <v-col
+                md="3"
+                offset="1"
+              >
+                <img-uploader
+                  :path="cateToAdd.image"
+                  caption="375*375像素"
+                  @update:src="getPicPath($event, 'cateToAdd')"
                 />
               </v-col>
               <v-col md="6">
                 <v-text-field
+                  v-model="cateToAdd.dnames"
+                  :rules="nameRules"
+                  label="分类名称"
+                  placeholder="请输入分类名称"
+                  outlined
+                  clearable
+                  required
+                  dense
+                  class="mb-3"
+                />
+                <v-text-field
                   v-model="cateToAdd.sort"
                   :rules="sortRules"
+                  label="序号"
                   placeholder="请输入分类序号"
                   type="number"
                   outlined
                   clearable
-                  single-line
                   hide-details
                   dense
                 />
@@ -193,7 +235,7 @@
     </v-dialog>
     <v-dialog
       v-model="dialogEdit"
-      width="800"
+      width="650"
     >
       <v-card>
         <v-form
@@ -201,39 +243,52 @@
           v-model="valid"
         >
           <v-card-title class="text-h6 grey lighten-3">
-            添加分类
+            编辑分类
           </v-card-title>
           <div class="pa-4">
-            <v-row class="font-weight-bold">
+            <!-- <v-row class="font-weight-bold">
               <v-col md="6">
                 分类名称
               </v-col>
               <v-col md="6">
                 排序
               </v-col>
-            </v-row>
-            <v-row class="mb-2">
-              <v-col md="6">
-                <v-text-field
-                  v-model="cateToEdit.dnames"
-                  :rules="nameRules"
-                  outlined
-                  clearable
-                  required
-                  single-line
-                  hide-details
-                  dense
+            </v-row> -->
+            <v-row
+              class="mb-2"
+              align="center"
+            >
+              <v-col
+                md="3"
+                offset="1"
+              >
+                <img-uploader
+                  :path="cateToEdit.image"
+                  caption="375*375像素"
+                  @update:src="getPicPath($event, 'cateToEdit')"
                 />
               </v-col>
               <v-col md="6">
                 <v-text-field
-                  v-model="cateToEdit.sort"
-                  :rules="sortRules"
-                  type="number"
+                  v-model="cateToEdit.dnames"
+                  :rules="nameRules"
+                  label="分类名称"
+                  placeholder="请输入分类名称"
                   outlined
                   clearable
-                  single-line
+                  required
+                  dense
+                  class="mb-3"
+                />
+                <v-text-field
+                  v-model="cateToEdit.sort"
+                  :rules="sortRules"
+                  label="序号"
+                  placeholder="请输入分类序号"
+                  type="number"
+                  outlined
                   hide-details
+                  clearable
                   dense
                 />
               </v-col>
@@ -293,9 +348,13 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import ImgUploader from '@/components/ImgUploader.vue';
 
 export default {
   name: 'GoodsCategory',
+  components: {
+    ImgUploader,
+  },
   data() {
     return {
       loading: false,
@@ -345,13 +404,14 @@ export default {
     },
     openDialogAdd(params) {
       this.dialogAdd = true;
-      this.cateToAdd = {
+      this.cateToAdd = JSON.parse(JSON.stringify({
         parentId: params ? params.id : '0',
         dnames: '',
+        image: '',
         dLevel: params ? '2' : '1',
         parentsPath: params ? params.parentsPath : '',
-        sort: params ? params.sort : 99,
-      };
+        sort: 99,
+      }));
     },
     openDialogEdit(item) {
       this.dialogEdit = true;
@@ -390,6 +450,9 @@ export default {
           this.dialogDelete = false;
           this.loading = false;
         });
+    },
+    getPicPath(v, target) {
+      this.$set(this[target], 'image', v);
     },
   },
 };

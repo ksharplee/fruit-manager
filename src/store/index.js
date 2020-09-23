@@ -9,6 +9,7 @@ import actions from './root/actions';
 import product from './product/index';
 import setting from './setting/index';
 import customer from './customer/index';
+import order from './order/index';
 
 Vue.use(Vuex);
 
@@ -25,6 +26,13 @@ const vm = new Vuex.Store({
       getters: product.getters,
       mutations: product.mutations,
       actions: product.actions,
+    },
+    order: {
+      namespaced: true,
+      state: order.state,
+      getters: order.getters,
+      mutations: order.mutations,
+      actions: order.actions,
     },
     setting: {
       namespaced: true,

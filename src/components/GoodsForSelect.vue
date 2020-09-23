@@ -269,6 +269,7 @@ export default {
   name: 'GoodsForSelect',
   data() {
     return {
+      page: 1,
       selectedGoods: [],
       dialogDelete: false,
       dialogOperate: false,
@@ -353,14 +354,6 @@ export default {
   computed: {
     ...mapState('setting', ['list']),
     ...mapState('product', ['category']),
-    page: {
-      set(value) {
-        this.list.p = value;
-      },
-      get() {
-        return +this.list.p;
-      },
-    },
     pageCount() {
       if (
         !process.env.VUE_APP_PAGESIZE || !this.list.totalItem
@@ -409,13 +402,15 @@ export default {
     },
     getGoodsList(params) {
       this.loading = true;
-      this.getGoodsListAsync(params).finally(() => {
+      this.getGoodsListAsync(params).then(() => {
+        this.page = +this.list.p;
+      }).finally(() => {
         this.loading = false;
         this.loadingData = false;
       });
     },
     changePagination() {
-      this.getGoodsList({ p: this.page + 1 });
+      this.getGoodsList({ p: this.page });
     },
     searchProducts() {
       this.getGoodsList({

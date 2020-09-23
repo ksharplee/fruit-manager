@@ -27,7 +27,9 @@
           hide-default-footer
           no-data-text="暂无数据"
           fixed-header
-          :items-per-page="10"
+          :page.sync="page"
+          :items-per-page="itemsPerPage"
+          @page-count="pageCount = $event"
         >
           <template v-slot:item.dStatus="{item}">
             <span :class="item.dStatus === '1' ? 'success--text' : 'grey--text'">{{ item.dStatus | statusStr }}</span>
@@ -81,6 +83,19 @@
             </v-tooltip>
           </template>
         </v-data-table>
+        <div class="text-center pt-2 grey lighten-4">
+          <v-pagination
+            v-model="page"
+            :length="pageCount"
+            current-page-aria-label="当前页"
+            next-aria-label="下一页"
+            page-aria-label="分页"
+            wrapper-aria-label="隐藏页"
+            previous-aria-label="上一页"
+            prev-icon="mdi-menu-left"
+            next-icon="mdi-menu-right"
+          />
+        </div>
       </v-card>
     </v-skeleton-loader>
     <v-dialog
@@ -161,6 +176,9 @@ export default {
   },
   data() {
     return {
+      page: 1,
+      pageCount: 0,
+      itemsPerPage: 10,
       headers: [
         {
           text: '主题',

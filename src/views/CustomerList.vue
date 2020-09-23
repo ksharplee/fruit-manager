@@ -54,12 +54,14 @@
         <v-data-table
           :headers="headers"
           :items="list.data"
+          :page.sync="page"
           :loading="loading"
           loading-text="加载中..."
           hide-default-footer
           no-data-text="暂无数据"
           fixed-header
-          :items-per-page="10"
+          :items-per-page="itemsPerPage"
+          @page-count="pageCount = $event"
         >
           <template v-slot:item.action="{item}">
             <v-tooltip bottom>
@@ -148,7 +150,6 @@
             previous-aria-label="上一页"
             prev-icon="mdi-menu-left"
             next-icon="mdi-menu-right"
-            @input="changePagination"
           />
         </div>
       </v-card>
@@ -163,6 +164,9 @@ export default {
   name: 'CustomerList',
   data() {
     return {
+      page: 1,
+      pageCount: 0,
+      itemsPerPage: 10,
       loading: false,
       loadingData: false,
       search: '',
@@ -207,42 +211,23 @@ export default {
   },
   computed: {
     ...mapState('customer', ['list']),
-    page: {
-      set(value) {
-        this.list.p = value;
-      },
-      get() {
-        return +this.list.p;
-      },
-    },
-    pageCount() {
-      if (
-        !process.env.VUE_APP_PAGESIZE || !this.list.totalItem
-      ) {
-        return 1;
-      }
-      return Math.ceil(
-        +this.list.totalItem / process.env.VUE_APP_ITEMPERPAGE,
-      );
-    },
   },
   created() {
     if (!this.list.status) {
       this.loadingData = true;
-      this.getCustomer({ p: 1 });
+      this.getCustomer();
     }
   },
   methods: {
     ...mapActions('customer', ['getCustomerAsync', 'getCustomerDetailAsync', 'editCustomerAsync', 'getCustomerPointsAsync']),
     getCustomer(params) {
       this.loading = true;
-      this.getCustomerAsync(params).finally(() => {
+      this.getCustomerAsync(params).then(() => {
+        this.page = +this.list.p;
+      }).finally(() => {
         this.loading = false;
         this.loadingData = false;
       });
-    },
-    changePagination() {
-      this.getCustomer({ p: this.page + 1 });
     },
     getCustomerDetail(id) {
       this.getCustomerDetailAsync({ id }).then((res) => {
@@ -258,14 +243,13 @@ export default {
       if (this.search) {
         this.getCustomer({
           dnames: this.search,
-          p: 1,
         });
       }
     },
     resetSearch() {
       if (this.search) {
         this.search = '';
-        this.getCustomer({ p: 1 });
+        this.getCustomer();
       }
     },
   },

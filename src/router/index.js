@@ -30,6 +30,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
       },
       {
+        path: '/orders',
+        name: 'OrderList',
+        component: () => import(/* webpackChunkName: "goods" */ '../views/OrderList.vue'),
+      },
+      {
         path: '/goods',
         name: 'GoodsList',
         component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsList.vue'),
@@ -43,6 +48,12 @@ const routes = [
         path: '/goods/edit/:id',
         name: 'GoodsEdit',
         component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsOperation.vue'),
+        props: true,
+      },
+      {
+        path: '/goods/detail/:id',
+        name: 'GoodsDetail',
+        component: () => import(/* webpackChunkName: "goods" */ '../views/GoodsDetail.vue'),
         props: true,
       },
       {

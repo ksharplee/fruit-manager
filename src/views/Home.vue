@@ -104,6 +104,14 @@ export default {
         ],
       },
       {
+        icon: 'mdi-pencil-circle',
+        text: '订单',
+        model: false,
+        children: [
+          { text: '订单列表', url: { name: 'OrderList' } },
+        ],
+      },
+      {
         icon: 'mdi-alpha-s-circle',
         text: '系统',
         model: false,

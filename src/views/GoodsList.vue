@@ -268,6 +268,21 @@
                 <v-btn
                   icon
                   class="mx-1"
+                  :to="{name: 'GoodsDetail', params: {id: item.id}}"
+                  v-on="on"
+                >
+                  <v-icon color="brown lighten-1">
+                    mdi-dots-horizontal-circle
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>详情</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  icon
+                  class="mx-1"
                   :disabled="item.dStatus === '4'"
                   :to="{name: 'GoodsEdit', params: {id: item.id}}"
                   v-on="on"
@@ -463,6 +478,7 @@ export default {
   name: 'GoodsList',
   data() {
     return {
+      page: 1,
       selectedGoods: [],
       dialogDelete: false,
       dialogOperate: false,
@@ -561,14 +577,6 @@ export default {
   },
   computed: {
     ...mapState('product', ['list', 'category']),
-    page: {
-      set(value) {
-        this.list.p = value;
-      },
-      get() {
-        return +this.list.p;
-      },
-    },
     pageCount() {
       if (
         !process.env.VUE_APP_PAGESIZE || !this.list.totalItem
@@ -629,13 +637,15 @@ export default {
     },
     getGoodsList(params) {
       this.loading = true;
-      this.getGoodsListAsync(params).finally(() => {
+      this.getGoodsListAsync(params).then(() => {
+        this.page = +this.list.p;
+      }).finally(() => {
         this.loading = false;
         this.loadingData = false;
       });
     },
     changePagination() {
-      this.getGoodsList({ p: this.page + 1 });
+      this.getGoodsList({ p: this.page });
     },
     deleteGoods() {
       this.deleting = true;
